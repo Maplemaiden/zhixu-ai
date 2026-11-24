@@ -1,0 +1,3434 @@
+{
+  "ch1": {
+    "chapterId": "ch1",
+    "title": "决策理论与方法概述",
+    "chapterTitle": "第一讲 · 决策理论与方法概述",
+    "methodId": "overview_elements",
+    "topicId": "overview_elements",
+    "sourceFile": "1（决策理论与方法概述）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 1 页",
+        "image": "/lectures/ch1/slide-01.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 2 页",
+        "image": "/lectures/ch1/slide-02.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 3 页",
+        "image": "/lectures/ch1/slide-03.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 4 页",
+        "image": "/lectures/ch1/slide-04.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 5 页",
+        "image": "/lectures/ch1/slide-05.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 6 页",
+        "image": "/lectures/ch1/slide-06.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 7 页",
+        "image": "/lectures/ch1/slide-07.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 8 页",
+        "image": "/lectures/ch1/slide-08.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 9 页",
+        "image": "/lectures/ch1/slide-09.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 10 页",
+        "image": "/lectures/ch1/slide-10.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 11 页",
+        "image": "/lectures/ch1/slide-11.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 12 页",
+        "image": "/lectures/ch1/slide-12.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 13 页",
+        "image": "/lectures/ch1/slide-13.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 14 页",
+        "image": "/lectures/ch1/slide-14.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 15 页",
+        "image": "/lectures/ch1/slide-15.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 16 页",
+        "image": "/lectures/ch1/slide-16.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 17 页",
+        "image": "/lectures/ch1/slide-17.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 18 页",
+        "image": "/lectures/ch1/slide-18.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 19 页",
+        "image": "/lectures/ch1/slide-19.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 20 页",
+        "image": "/lectures/ch1/slide-20.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 21 页",
+        "image": "/lectures/ch1/slide-21.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 22 页",
+        "image": "/lectures/ch1/slide-22.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 23 页",
+        "image": "/lectures/ch1/slide-23.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 24 页",
+        "image": "/lectures/ch1/slide-24.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 25 页",
+        "image": "/lectures/ch1/slide-25.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 26 页",
+        "image": "/lectures/ch1/slide-26.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 27 页",
+        "image": "/lectures/ch1/slide-27.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 28 页",
+        "image": "/lectures/ch1/slide-28.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 29 页",
+        "image": "/lectures/ch1/slide-29.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 30 页",
+        "image": "/lectures/ch1/slide-30.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 31 页",
+        "image": "/lectures/ch1/slide-31.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 32 页",
+        "image": "/lectures/ch1/slide-32.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 33 页",
+        "image": "/lectures/ch1/slide-33.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 34 页",
+        "image": "/lectures/ch1/slide-34.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 35 页",
+        "image": "/lectures/ch1/slide-35.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 36 页",
+        "image": "/lectures/ch1/slide-36.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 37 页",
+        "image": "/lectures/ch1/slide-37.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 38 页",
+        "image": "/lectures/ch1/slide-38.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 39 页",
+        "image": "/lectures/ch1/slide-39.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "40 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 40 页",
+        "image": "/lectures/ch1/slide-40.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      },
+      {
+        "meta": "41 / 课堂课件",
+        "title": "第一讲 · 决策理论与方法概述 · 第 41 页",
+        "image": "/lectures/ch1/slide-41.jpg",
+        "intro": "",
+        "footer": "1（决策理论与方法概述）.pptx"
+      }
+    ]
+  },
+  "ch2": {
+    "chapterId": "ch2",
+    "title": "风险型决策",
+    "chapterTitle": "第二讲 · 风险型决策",
+    "methodId": "expected_value",
+    "topicId": "expected_value",
+    "sourceFile": "2（风险型决策）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 1 页",
+        "image": "/lectures/ch2/slide-01.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 2 页",
+        "image": "/lectures/ch2/slide-02.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 3 页",
+        "image": "/lectures/ch2/slide-03.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 4 页",
+        "image": "/lectures/ch2/slide-04.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 5 页",
+        "image": "/lectures/ch2/slide-05.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 6 页",
+        "image": "/lectures/ch2/slide-06.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 7 页",
+        "image": "/lectures/ch2/slide-07.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 8 页",
+        "image": "/lectures/ch2/slide-08.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 9 页",
+        "image": "/lectures/ch2/slide-09.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 10 页",
+        "image": "/lectures/ch2/slide-10.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 11 页",
+        "image": "/lectures/ch2/slide-11.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 12 页",
+        "image": "/lectures/ch2/slide-12.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 13 页",
+        "image": "/lectures/ch2/slide-13.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 14 页",
+        "image": "/lectures/ch2/slide-14.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 15 页",
+        "image": "/lectures/ch2/slide-15.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 16 页",
+        "image": "/lectures/ch2/slide-16.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 17 页",
+        "image": "/lectures/ch2/slide-17.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 18 页",
+        "image": "/lectures/ch2/slide-18.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 19 页",
+        "image": "/lectures/ch2/slide-19.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 20 页",
+        "image": "/lectures/ch2/slide-20.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 21 页",
+        "image": "/lectures/ch2/slide-21.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 22 页",
+        "image": "/lectures/ch2/slide-22.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 23 页",
+        "image": "/lectures/ch2/slide-23.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 24 页",
+        "image": "/lectures/ch2/slide-24.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 25 页",
+        "image": "/lectures/ch2/slide-25.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 26 页",
+        "image": "/lectures/ch2/slide-26.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 27 页",
+        "image": "/lectures/ch2/slide-27.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 28 页",
+        "image": "/lectures/ch2/slide-28.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 29 页",
+        "image": "/lectures/ch2/slide-29.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 30 页",
+        "image": "/lectures/ch2/slide-30.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 31 页",
+        "image": "/lectures/ch2/slide-31.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 32 页",
+        "image": "/lectures/ch2/slide-32.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 33 页",
+        "image": "/lectures/ch2/slide-33.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 34 页",
+        "image": "/lectures/ch2/slide-34.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 35 页",
+        "image": "/lectures/ch2/slide-35.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 36 页",
+        "image": "/lectures/ch2/slide-36.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 37 页",
+        "image": "/lectures/ch2/slide-37.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 38 页",
+        "image": "/lectures/ch2/slide-38.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 39 页",
+        "image": "/lectures/ch2/slide-39.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "40 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 40 页",
+        "image": "/lectures/ch2/slide-40.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "41 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 41 页",
+        "image": "/lectures/ch2/slide-41.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "42 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 42 页",
+        "image": "/lectures/ch2/slide-42.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "43 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 43 页",
+        "image": "/lectures/ch2/slide-43.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "44 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 44 页",
+        "image": "/lectures/ch2/slide-44.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "45 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 45 页",
+        "image": "/lectures/ch2/slide-45.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "46 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 46 页",
+        "image": "/lectures/ch2/slide-46.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "47 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 47 页",
+        "image": "/lectures/ch2/slide-47.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "48 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 48 页",
+        "image": "/lectures/ch2/slide-48.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "49 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 49 页",
+        "image": "/lectures/ch2/slide-49.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "50 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 50 页",
+        "image": "/lectures/ch2/slide-50.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "51 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 51 页",
+        "image": "/lectures/ch2/slide-51.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "52 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 52 页",
+        "image": "/lectures/ch2/slide-52.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "53 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 53 页",
+        "image": "/lectures/ch2/slide-53.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "54 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 54 页",
+        "image": "/lectures/ch2/slide-54.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "55 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 55 页",
+        "image": "/lectures/ch2/slide-55.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "56 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 56 页",
+        "image": "/lectures/ch2/slide-56.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "57 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 57 页",
+        "image": "/lectures/ch2/slide-57.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "58 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 58 页",
+        "image": "/lectures/ch2/slide-58.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "59 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 59 页",
+        "image": "/lectures/ch2/slide-59.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "60 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 60 页",
+        "image": "/lectures/ch2/slide-60.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "61 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 61 页",
+        "image": "/lectures/ch2/slide-61.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "62 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 62 页",
+        "image": "/lectures/ch2/slide-62.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "63 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 63 页",
+        "image": "/lectures/ch2/slide-63.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "64 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 64 页",
+        "image": "/lectures/ch2/slide-64.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "65 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 65 页",
+        "image": "/lectures/ch2/slide-65.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "66 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 66 页",
+        "image": "/lectures/ch2/slide-66.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "67 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 67 页",
+        "image": "/lectures/ch2/slide-67.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "68 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 68 页",
+        "image": "/lectures/ch2/slide-68.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "69 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 69 页",
+        "image": "/lectures/ch2/slide-69.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "70 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 70 页",
+        "image": "/lectures/ch2/slide-70.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "71 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 71 页",
+        "image": "/lectures/ch2/slide-71.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "72 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 72 页",
+        "image": "/lectures/ch2/slide-72.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "73 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 73 页",
+        "image": "/lectures/ch2/slide-73.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "74 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 74 页",
+        "image": "/lectures/ch2/slide-74.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "75 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 75 页",
+        "image": "/lectures/ch2/slide-75.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "76 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 76 页",
+        "image": "/lectures/ch2/slide-76.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "77 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 77 页",
+        "image": "/lectures/ch2/slide-77.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "78 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 78 页",
+        "image": "/lectures/ch2/slide-78.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "79 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 79 页",
+        "image": "/lectures/ch2/slide-79.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "80 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 80 页",
+        "image": "/lectures/ch2/slide-80.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "81 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 81 页",
+        "image": "/lectures/ch2/slide-81.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "82 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 82 页",
+        "image": "/lectures/ch2/slide-82.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "83 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 83 页",
+        "image": "/lectures/ch2/slide-83.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "84 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 84 页",
+        "image": "/lectures/ch2/slide-84.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "85 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 85 页",
+        "image": "/lectures/ch2/slide-85.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "86 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 86 页",
+        "image": "/lectures/ch2/slide-86.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "87 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 87 页",
+        "image": "/lectures/ch2/slide-87.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "88 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 88 页",
+        "image": "/lectures/ch2/slide-88.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "89 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 89 页",
+        "image": "/lectures/ch2/slide-89.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "90 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 90 页",
+        "image": "/lectures/ch2/slide-90.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "91 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 91 页",
+        "image": "/lectures/ch2/slide-91.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "92 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 92 页",
+        "image": "/lectures/ch2/slide-92.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "93 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 93 页",
+        "image": "/lectures/ch2/slide-93.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "94 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 94 页",
+        "image": "/lectures/ch2/slide-94.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "95 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 95 页",
+        "image": "/lectures/ch2/slide-95.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "96 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 96 页",
+        "image": "/lectures/ch2/slide-96.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      },
+      {
+        "meta": "97 / 课堂课件",
+        "title": "第二讲 · 风险型决策 · 第 97 页",
+        "image": "/lectures/ch2/slide-97.jpg",
+        "intro": "",
+        "footer": "2（风险型决策）.pptx"
+      }
+    ]
+  },
+  "ch3": {
+    "chapterId": "ch3",
+    "title": "不确定型决策分析",
+    "chapterTitle": "第三讲 · 不确定型决策分析",
+    "methodId": "uncertainty_criteria",
+    "topicId": "uncertainty_criteria",
+    "sourceFile": "3（不确定型决策分析）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 1 页",
+        "image": "/lectures/ch3/slide-01.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 2 页",
+        "image": "/lectures/ch3/slide-02.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 3 页",
+        "image": "/lectures/ch3/slide-03.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 4 页",
+        "image": "/lectures/ch3/slide-04.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 5 页",
+        "image": "/lectures/ch3/slide-05.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 6 页",
+        "image": "/lectures/ch3/slide-06.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 7 页",
+        "image": "/lectures/ch3/slide-07.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 8 页",
+        "image": "/lectures/ch3/slide-08.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 9 页",
+        "image": "/lectures/ch3/slide-09.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 10 页",
+        "image": "/lectures/ch3/slide-10.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 11 页",
+        "image": "/lectures/ch3/slide-11.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 12 页",
+        "image": "/lectures/ch3/slide-12.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 13 页",
+        "image": "/lectures/ch3/slide-13.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 14 页",
+        "image": "/lectures/ch3/slide-14.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 15 页",
+        "image": "/lectures/ch3/slide-15.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 16 页",
+        "image": "/lectures/ch3/slide-16.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 17 页",
+        "image": "/lectures/ch3/slide-17.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 18 页",
+        "image": "/lectures/ch3/slide-18.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 19 页",
+        "image": "/lectures/ch3/slide-19.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 20 页",
+        "image": "/lectures/ch3/slide-20.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 21 页",
+        "image": "/lectures/ch3/slide-21.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 22 页",
+        "image": "/lectures/ch3/slide-22.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 23 页",
+        "image": "/lectures/ch3/slide-23.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 24 页",
+        "image": "/lectures/ch3/slide-24.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 25 页",
+        "image": "/lectures/ch3/slide-25.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 26 页",
+        "image": "/lectures/ch3/slide-26.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 27 页",
+        "image": "/lectures/ch3/slide-27.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 28 页",
+        "image": "/lectures/ch3/slide-28.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 29 页",
+        "image": "/lectures/ch3/slide-29.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 30 页",
+        "image": "/lectures/ch3/slide-30.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 31 页",
+        "image": "/lectures/ch3/slide-31.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 32 页",
+        "image": "/lectures/ch3/slide-32.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 33 页",
+        "image": "/lectures/ch3/slide-33.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 34 页",
+        "image": "/lectures/ch3/slide-34.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 35 页",
+        "image": "/lectures/ch3/slide-35.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 36 页",
+        "image": "/lectures/ch3/slide-36.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 37 页",
+        "image": "/lectures/ch3/slide-37.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 38 页",
+        "image": "/lectures/ch3/slide-38.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 39 页",
+        "image": "/lectures/ch3/slide-39.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      },
+      {
+        "meta": "40 / 课堂课件",
+        "title": "第三讲 · 不确定型决策分析 · 第 40 页",
+        "image": "/lectures/ch3/slide-40.jpg",
+        "intro": "",
+        "footer": "3（不确定型决策分析）.pptx"
+      }
+    ]
+  },
+  "ch4": {
+    "chapterId": "ch4",
+    "title": "多维效用并合模型",
+    "chapterTitle": "第四讲 · 多维效用并合模型",
+    "methodId": "utility_combine",
+    "topicId": "utility_combine",
+    "sourceFile": "4（多维效用并合模型）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 1 页",
+        "image": "/lectures/ch4/slide-01.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 2 页",
+        "image": "/lectures/ch4/slide-02.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 3 页",
+        "image": "/lectures/ch4/slide-03.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 4 页",
+        "image": "/lectures/ch4/slide-04.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 5 页",
+        "image": "/lectures/ch4/slide-05.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 6 页",
+        "image": "/lectures/ch4/slide-06.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 7 页",
+        "image": "/lectures/ch4/slide-07.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 8 页",
+        "image": "/lectures/ch4/slide-08.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 9 页",
+        "image": "/lectures/ch4/slide-09.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 10 页",
+        "image": "/lectures/ch4/slide-10.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 11 页",
+        "image": "/lectures/ch4/slide-11.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 12 页",
+        "image": "/lectures/ch4/slide-12.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 13 页",
+        "image": "/lectures/ch4/slide-13.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 14 页",
+        "image": "/lectures/ch4/slide-14.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 15 页",
+        "image": "/lectures/ch4/slide-15.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 16 页",
+        "image": "/lectures/ch4/slide-16.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 17 页",
+        "image": "/lectures/ch4/slide-17.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 18 页",
+        "image": "/lectures/ch4/slide-18.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 19 页",
+        "image": "/lectures/ch4/slide-19.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 20 页",
+        "image": "/lectures/ch4/slide-20.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 21 页",
+        "image": "/lectures/ch4/slide-21.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 22 页",
+        "image": "/lectures/ch4/slide-22.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 23 页",
+        "image": "/lectures/ch4/slide-23.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 24 页",
+        "image": "/lectures/ch4/slide-24.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 25 页",
+        "image": "/lectures/ch4/slide-25.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 26 页",
+        "image": "/lectures/ch4/slide-26.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 27 页",
+        "image": "/lectures/ch4/slide-27.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 28 页",
+        "image": "/lectures/ch4/slide-28.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 29 页",
+        "image": "/lectures/ch4/slide-29.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 30 页",
+        "image": "/lectures/ch4/slide-30.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 31 页",
+        "image": "/lectures/ch4/slide-31.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 32 页",
+        "image": "/lectures/ch4/slide-32.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 33 页",
+        "image": "/lectures/ch4/slide-33.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 34 页",
+        "image": "/lectures/ch4/slide-34.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 35 页",
+        "image": "/lectures/ch4/slide-35.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 36 页",
+        "image": "/lectures/ch4/slide-36.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 37 页",
+        "image": "/lectures/ch4/slide-37.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 38 页",
+        "image": "/lectures/ch4/slide-38.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第四讲 · 多维效用并合模型 · 第 39 页",
+        "image": "/lectures/ch4/slide-39.jpg",
+        "intro": "",
+        "footer": "4（多维效用并合模型）.pptx"
+      }
+    ]
+  },
+  "ch5": {
+    "chapterId": "ch5",
+    "title": "数据包络分析",
+    "chapterTitle": "第五讲 · 数据包络分析",
+    "methodId": "dea",
+    "topicId": "dea",
+    "sourceFile": "5（数据包络分析）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 1 页",
+        "image": "/lectures/ch5/slide-01.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 2 页",
+        "image": "/lectures/ch5/slide-02.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 3 页",
+        "image": "/lectures/ch5/slide-03.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 4 页",
+        "image": "/lectures/ch5/slide-04.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 5 页",
+        "image": "/lectures/ch5/slide-05.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 6 页",
+        "image": "/lectures/ch5/slide-06.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 7 页",
+        "image": "/lectures/ch5/slide-07.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 8 页",
+        "image": "/lectures/ch5/slide-08.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 9 页",
+        "image": "/lectures/ch5/slide-09.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 10 页",
+        "image": "/lectures/ch5/slide-10.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 11 页",
+        "image": "/lectures/ch5/slide-11.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 12 页",
+        "image": "/lectures/ch5/slide-12.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 13 页",
+        "image": "/lectures/ch5/slide-13.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 14 页",
+        "image": "/lectures/ch5/slide-14.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 15 页",
+        "image": "/lectures/ch5/slide-15.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 16 页",
+        "image": "/lectures/ch5/slide-16.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 17 页",
+        "image": "/lectures/ch5/slide-17.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 18 页",
+        "image": "/lectures/ch5/slide-18.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 19 页",
+        "image": "/lectures/ch5/slide-19.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 20 页",
+        "image": "/lectures/ch5/slide-20.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 21 页",
+        "image": "/lectures/ch5/slide-21.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 22 页",
+        "image": "/lectures/ch5/slide-22.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 23 页",
+        "image": "/lectures/ch5/slide-23.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 24 页",
+        "image": "/lectures/ch5/slide-24.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 25 页",
+        "image": "/lectures/ch5/slide-25.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 26 页",
+        "image": "/lectures/ch5/slide-26.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第五讲 · 数据包络分析 · 第 27 页",
+        "image": "/lectures/ch5/slide-27.jpg",
+        "intro": "",
+        "footer": "5（数据包络分析）.pptx"
+      }
+    ]
+  },
+  "ch6": {
+    "chapterId": "ch6",
+    "title": "目标规划",
+    "chapterTitle": "第六讲 · 目标规划",
+    "methodId": "goal_programming",
+    "topicId": "goal_programming",
+    "sourceFile": "6（多目标决策问题的线性规划方法）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 1 页",
+        "image": "/lectures/ch6/slide-01.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 2 页",
+        "image": "/lectures/ch6/slide-02.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 3 页",
+        "image": "/lectures/ch6/slide-03.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 4 页",
+        "image": "/lectures/ch6/slide-04.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 5 页",
+        "image": "/lectures/ch6/slide-05.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 6 页",
+        "image": "/lectures/ch6/slide-06.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 7 页",
+        "image": "/lectures/ch6/slide-07.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 8 页",
+        "image": "/lectures/ch6/slide-08.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 9 页",
+        "image": "/lectures/ch6/slide-09.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 10 页",
+        "image": "/lectures/ch6/slide-10.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 11 页",
+        "image": "/lectures/ch6/slide-11.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 12 页",
+        "image": "/lectures/ch6/slide-12.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 13 页",
+        "image": "/lectures/ch6/slide-13.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 14 页",
+        "image": "/lectures/ch6/slide-14.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 15 页",
+        "image": "/lectures/ch6/slide-15.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第六讲 · 目标规划 · 第 16 页",
+        "image": "/lectures/ch6/slide-16.jpg",
+        "intro": "",
+        "footer": "6（多目标决策问题的线性规划方法）.pptx"
+      }
+    ]
+  },
+  "ch7": {
+    "chapterId": "ch7",
+    "title": "层次分析法",
+    "chapterTitle": "第七讲 · 层次分析法",
+    "methodId": "ahp",
+    "topicId": "ahp",
+    "sourceFile": "7（层次分析法）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 1 页",
+        "image": "/lectures/ch7/slide-01.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 2 页",
+        "image": "/lectures/ch7/slide-02.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 3 页",
+        "image": "/lectures/ch7/slide-03.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 4 页",
+        "image": "/lectures/ch7/slide-04.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 5 页",
+        "image": "/lectures/ch7/slide-05.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 6 页",
+        "image": "/lectures/ch7/slide-06.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 7 页",
+        "image": "/lectures/ch7/slide-07.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 8 页",
+        "image": "/lectures/ch7/slide-08.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 9 页",
+        "image": "/lectures/ch7/slide-09.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 10 页",
+        "image": "/lectures/ch7/slide-10.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 11 页",
+        "image": "/lectures/ch7/slide-11.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 12 页",
+        "image": "/lectures/ch7/slide-12.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 13 页",
+        "image": "/lectures/ch7/slide-13.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 14 页",
+        "image": "/lectures/ch7/slide-14.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 15 页",
+        "image": "/lectures/ch7/slide-15.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 16 页",
+        "image": "/lectures/ch7/slide-16.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 17 页",
+        "image": "/lectures/ch7/slide-17.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 18 页",
+        "image": "/lectures/ch7/slide-18.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 19 页",
+        "image": "/lectures/ch7/slide-19.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 20 页",
+        "image": "/lectures/ch7/slide-20.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 21 页",
+        "image": "/lectures/ch7/slide-21.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 22 页",
+        "image": "/lectures/ch7/slide-22.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 23 页",
+        "image": "/lectures/ch7/slide-23.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 24 页",
+        "image": "/lectures/ch7/slide-24.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 25 页",
+        "image": "/lectures/ch7/slide-25.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 26 页",
+        "image": "/lectures/ch7/slide-26.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 27 页",
+        "image": "/lectures/ch7/slide-27.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 28 页",
+        "image": "/lectures/ch7/slide-28.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 29 页",
+        "image": "/lectures/ch7/slide-29.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 30 页",
+        "image": "/lectures/ch7/slide-30.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 31 页",
+        "image": "/lectures/ch7/slide-31.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 32 页",
+        "image": "/lectures/ch7/slide-32.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 33 页",
+        "image": "/lectures/ch7/slide-33.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 34 页",
+        "image": "/lectures/ch7/slide-34.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 35 页",
+        "image": "/lectures/ch7/slide-35.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 36 页",
+        "image": "/lectures/ch7/slide-36.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 37 页",
+        "image": "/lectures/ch7/slide-37.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 38 页",
+        "image": "/lectures/ch7/slide-38.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 39 页",
+        "image": "/lectures/ch7/slide-39.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "40 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 40 页",
+        "image": "/lectures/ch7/slide-40.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "41 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 41 页",
+        "image": "/lectures/ch7/slide-41.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "42 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 42 页",
+        "image": "/lectures/ch7/slide-42.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "43 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 43 页",
+        "image": "/lectures/ch7/slide-43.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "44 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 44 页",
+        "image": "/lectures/ch7/slide-44.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "45 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 45 页",
+        "image": "/lectures/ch7/slide-45.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "46 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 46 页",
+        "image": "/lectures/ch7/slide-46.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "47 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 47 页",
+        "image": "/lectures/ch7/slide-47.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "48 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 48 页",
+        "image": "/lectures/ch7/slide-48.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "49 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 49 页",
+        "image": "/lectures/ch7/slide-49.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "50 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 50 页",
+        "image": "/lectures/ch7/slide-50.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "51 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 51 页",
+        "image": "/lectures/ch7/slide-51.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "52 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 52 页",
+        "image": "/lectures/ch7/slide-52.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      },
+      {
+        "meta": "53 / 课堂课件",
+        "title": "第七讲 · 层次分析法 · 第 53 页",
+        "image": "/lectures/ch7/slide-53.jpg",
+        "intro": "",
+        "footer": "7（层次分析法）.pptx"
+      }
+    ]
+  },
+  "ch8": {
+    "chapterId": "ch8",
+    "title": "马尔可夫决策",
+    "chapterTitle": "第八讲 · 马尔可夫决策",
+    "methodId": "markov",
+    "topicId": "markov",
+    "sourceFile": "8（马尔可夫决策）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 1 页",
+        "image": "/lectures/ch8/slide-01.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 2 页",
+        "image": "/lectures/ch8/slide-02.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 3 页",
+        "image": "/lectures/ch8/slide-03.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 4 页",
+        "image": "/lectures/ch8/slide-04.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 5 页",
+        "image": "/lectures/ch8/slide-05.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 6 页",
+        "image": "/lectures/ch8/slide-06.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 7 页",
+        "image": "/lectures/ch8/slide-07.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 8 页",
+        "image": "/lectures/ch8/slide-08.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 9 页",
+        "image": "/lectures/ch8/slide-09.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 10 页",
+        "image": "/lectures/ch8/slide-10.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 11 页",
+        "image": "/lectures/ch8/slide-11.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 12 页",
+        "image": "/lectures/ch8/slide-12.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 13 页",
+        "image": "/lectures/ch8/slide-13.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 14 页",
+        "image": "/lectures/ch8/slide-14.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 15 页",
+        "image": "/lectures/ch8/slide-15.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 16 页",
+        "image": "/lectures/ch8/slide-16.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 17 页",
+        "image": "/lectures/ch8/slide-17.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 18 页",
+        "image": "/lectures/ch8/slide-18.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 19 页",
+        "image": "/lectures/ch8/slide-19.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 20 页",
+        "image": "/lectures/ch8/slide-20.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 21 页",
+        "image": "/lectures/ch8/slide-21.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 22 页",
+        "image": "/lectures/ch8/slide-22.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 23 页",
+        "image": "/lectures/ch8/slide-23.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 24 页",
+        "image": "/lectures/ch8/slide-24.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 25 页",
+        "image": "/lectures/ch8/slide-25.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 26 页",
+        "image": "/lectures/ch8/slide-26.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 27 页",
+        "image": "/lectures/ch8/slide-27.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 28 页",
+        "image": "/lectures/ch8/slide-28.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 29 页",
+        "image": "/lectures/ch8/slide-29.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 30 页",
+        "image": "/lectures/ch8/slide-30.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 31 页",
+        "image": "/lectures/ch8/slide-31.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 32 页",
+        "image": "/lectures/ch8/slide-32.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第八讲 · 马尔可夫决策 · 第 33 页",
+        "image": "/lectures/ch8/slide-33.jpg",
+        "intro": "",
+        "footer": "8（马尔可夫决策）.pptx"
+      }
+    ]
+  },
+  "ch9": {
+    "chapterId": "ch9",
+    "title": "多属性决策",
+    "chapterTitle": "第九讲 · 多属性决策",
+    "methodId": "madm",
+    "topicId": "madm_matrix",
+    "sourceFile": "11（多属性决策）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 1 页",
+        "image": "/lectures/ch9/slide-01.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 2 页",
+        "image": "/lectures/ch9/slide-02.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 3 页",
+        "image": "/lectures/ch9/slide-03.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 4 页",
+        "image": "/lectures/ch9/slide-04.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 5 页",
+        "image": "/lectures/ch9/slide-05.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 6 页",
+        "image": "/lectures/ch9/slide-06.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 7 页",
+        "image": "/lectures/ch9/slide-07.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 8 页",
+        "image": "/lectures/ch9/slide-08.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 9 页",
+        "image": "/lectures/ch9/slide-09.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 10 页",
+        "image": "/lectures/ch9/slide-10.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 11 页",
+        "image": "/lectures/ch9/slide-11.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 12 页",
+        "image": "/lectures/ch9/slide-12.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 13 页",
+        "image": "/lectures/ch9/slide-13.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 14 页",
+        "image": "/lectures/ch9/slide-14.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 15 页",
+        "image": "/lectures/ch9/slide-15.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 16 页",
+        "image": "/lectures/ch9/slide-16.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 17 页",
+        "image": "/lectures/ch9/slide-17.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 18 页",
+        "image": "/lectures/ch9/slide-18.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 19 页",
+        "image": "/lectures/ch9/slide-19.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 20 页",
+        "image": "/lectures/ch9/slide-20.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 21 页",
+        "image": "/lectures/ch9/slide-21.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 22 页",
+        "image": "/lectures/ch9/slide-22.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 23 页",
+        "image": "/lectures/ch9/slide-23.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 24 页",
+        "image": "/lectures/ch9/slide-24.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 25 页",
+        "image": "/lectures/ch9/slide-25.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 26 页",
+        "image": "/lectures/ch9/slide-26.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 27 页",
+        "image": "/lectures/ch9/slide-27.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 28 页",
+        "image": "/lectures/ch9/slide-28.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 29 页",
+        "image": "/lectures/ch9/slide-29.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 30 页",
+        "image": "/lectures/ch9/slide-30.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 31 页",
+        "image": "/lectures/ch9/slide-31.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 32 页",
+        "image": "/lectures/ch9/slide-32.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 33 页",
+        "image": "/lectures/ch9/slide-33.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 34 页",
+        "image": "/lectures/ch9/slide-34.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 35 页",
+        "image": "/lectures/ch9/slide-35.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 36 页",
+        "image": "/lectures/ch9/slide-36.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 37 页",
+        "image": "/lectures/ch9/slide-37.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 38 页",
+        "image": "/lectures/ch9/slide-38.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 39 页",
+        "image": "/lectures/ch9/slide-39.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "40 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 40 页",
+        "image": "/lectures/ch9/slide-40.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "41 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 41 页",
+        "image": "/lectures/ch9/slide-41.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "42 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 42 页",
+        "image": "/lectures/ch9/slide-42.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "43 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 43 页",
+        "image": "/lectures/ch9/slide-43.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "44 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 44 页",
+        "image": "/lectures/ch9/slide-44.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "45 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 45 页",
+        "image": "/lectures/ch9/slide-45.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "46 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 46 页",
+        "image": "/lectures/ch9/slide-46.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "47 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 47 页",
+        "image": "/lectures/ch9/slide-47.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "48 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 48 页",
+        "image": "/lectures/ch9/slide-48.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "49 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 49 页",
+        "image": "/lectures/ch9/slide-49.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "50 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 50 页",
+        "image": "/lectures/ch9/slide-50.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "51 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 51 页",
+        "image": "/lectures/ch9/slide-51.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "52 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 52 页",
+        "image": "/lectures/ch9/slide-52.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "53 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 53 页",
+        "image": "/lectures/ch9/slide-53.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "54 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 54 页",
+        "image": "/lectures/ch9/slide-54.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "55 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 55 页",
+        "image": "/lectures/ch9/slide-55.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "56 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 56 页",
+        "image": "/lectures/ch9/slide-56.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "57 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 57 页",
+        "image": "/lectures/ch9/slide-57.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "58 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 58 页",
+        "image": "/lectures/ch9/slide-58.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "59 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 59 页",
+        "image": "/lectures/ch9/slide-59.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "60 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 60 页",
+        "image": "/lectures/ch9/slide-60.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "61 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 61 页",
+        "image": "/lectures/ch9/slide-61.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "62 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 62 页",
+        "image": "/lectures/ch9/slide-62.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "63 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 63 页",
+        "image": "/lectures/ch9/slide-63.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "64 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 64 页",
+        "image": "/lectures/ch9/slide-64.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "65 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 65 页",
+        "image": "/lectures/ch9/slide-65.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "66 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 66 页",
+        "image": "/lectures/ch9/slide-66.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "67 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 67 页",
+        "image": "/lectures/ch9/slide-67.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "68 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 68 页",
+        "image": "/lectures/ch9/slide-68.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "69 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 69 页",
+        "image": "/lectures/ch9/slide-69.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "70 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 70 页",
+        "image": "/lectures/ch9/slide-70.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "71 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 71 页",
+        "image": "/lectures/ch9/slide-71.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "72 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 72 页",
+        "image": "/lectures/ch9/slide-72.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "73 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 73 页",
+        "image": "/lectures/ch9/slide-73.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "74 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 74 页",
+        "image": "/lectures/ch9/slide-74.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "75 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 75 页",
+        "image": "/lectures/ch9/slide-75.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "76 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 76 页",
+        "image": "/lectures/ch9/slide-76.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "77 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 77 页",
+        "image": "/lectures/ch9/slide-77.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "78 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 78 页",
+        "image": "/lectures/ch9/slide-78.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "79 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 79 页",
+        "image": "/lectures/ch9/slide-79.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "80 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 80 页",
+        "image": "/lectures/ch9/slide-80.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "81 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 81 页",
+        "image": "/lectures/ch9/slide-81.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      },
+      {
+        "meta": "82 / 课堂课件",
+        "title": "第九讲 · 多属性决策 · 第 82 页",
+        "image": "/lectures/ch9/slide-82.jpg",
+        "intro": "",
+        "footer": "11（多属性决策）.pptx"
+      }
+    ]
+  },
+  "ch10": {
+    "chapterId": "ch10",
+    "title": "离散事件系统与仿真",
+    "chapterTitle": "第十讲 · 离散事件系统与仿真",
+    "methodId": "discrete_sim",
+    "topicId": "sim_basics",
+    "sourceFile": "10（离散事件系统与仿真）.pptx",
+    "slides": [
+      {
+        "meta": "01 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 1 页",
+        "image": "/lectures/ch10/slide-01.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "02 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 2 页",
+        "image": "/lectures/ch10/slide-02.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "03 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 3 页",
+        "image": "/lectures/ch10/slide-03.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "04 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 4 页",
+        "image": "/lectures/ch10/slide-04.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "05 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 5 页",
+        "image": "/lectures/ch10/slide-05.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "06 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 6 页",
+        "image": "/lectures/ch10/slide-06.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "07 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 7 页",
+        "image": "/lectures/ch10/slide-07.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "08 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 8 页",
+        "image": "/lectures/ch10/slide-08.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "09 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 9 页",
+        "image": "/lectures/ch10/slide-09.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "10 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 10 页",
+        "image": "/lectures/ch10/slide-10.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "11 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 11 页",
+        "image": "/lectures/ch10/slide-11.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "12 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 12 页",
+        "image": "/lectures/ch10/slide-12.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "13 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 13 页",
+        "image": "/lectures/ch10/slide-13.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "14 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 14 页",
+        "image": "/lectures/ch10/slide-14.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "15 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 15 页",
+        "image": "/lectures/ch10/slide-15.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "16 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 16 页",
+        "image": "/lectures/ch10/slide-16.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "17 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 17 页",
+        "image": "/lectures/ch10/slide-17.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "18 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 18 页",
+        "image": "/lectures/ch10/slide-18.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "19 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 19 页",
+        "image": "/lectures/ch10/slide-19.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "20 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 20 页",
+        "image": "/lectures/ch10/slide-20.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "21 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 21 页",
+        "image": "/lectures/ch10/slide-21.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "22 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 22 页",
+        "image": "/lectures/ch10/slide-22.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "23 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 23 页",
+        "image": "/lectures/ch10/slide-23.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "24 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 24 页",
+        "image": "/lectures/ch10/slide-24.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "25 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 25 页",
+        "image": "/lectures/ch10/slide-25.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "26 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 26 页",
+        "image": "/lectures/ch10/slide-26.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "27 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 27 页",
+        "image": "/lectures/ch10/slide-27.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "28 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 28 页",
+        "image": "/lectures/ch10/slide-28.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "29 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 29 页",
+        "image": "/lectures/ch10/slide-29.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "30 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 30 页",
+        "image": "/lectures/ch10/slide-30.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "31 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 31 页",
+        "image": "/lectures/ch10/slide-31.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "32 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 32 页",
+        "image": "/lectures/ch10/slide-32.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "33 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 33 页",
+        "image": "/lectures/ch10/slide-33.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "34 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 34 页",
+        "image": "/lectures/ch10/slide-34.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "35 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 35 页",
+        "image": "/lectures/ch10/slide-35.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "36 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 36 页",
+        "image": "/lectures/ch10/slide-36.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "37 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 37 页",
+        "image": "/lectures/ch10/slide-37.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "38 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 38 页",
+        "image": "/lectures/ch10/slide-38.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "39 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 39 页",
+        "image": "/lectures/ch10/slide-39.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "40 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 40 页",
+        "image": "/lectures/ch10/slide-40.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "41 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 41 页",
+        "image": "/lectures/ch10/slide-41.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "42 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 42 页",
+        "image": "/lectures/ch10/slide-42.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "43 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 43 页",
+        "image": "/lectures/ch10/slide-43.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "44 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 44 页",
+        "image": "/lectures/ch10/slide-44.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "45 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 45 页",
+        "image": "/lectures/ch10/slide-45.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "46 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 46 页",
+        "image": "/lectures/ch10/slide-46.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "47 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 47 页",
+        "image": "/lectures/ch10/slide-47.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      },
+      {
+        "meta": "48 / 课堂课件",
+        "title": "第十讲 · 离散事件系统与仿真 · 第 48 页",
+        "image": "/lectures/ch10/slide-48.jpg",
+        "intro": "",
+        "footer": "10（离散事件系统与仿真）.pptx"
+      }
+    ]
+  }
+}

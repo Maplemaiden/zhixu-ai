@@ -1,0 +1,190 @@
+[
+  {
+    "id": "unc_src_choice_01",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 不确定型定义",
+    "question": "【教材】不确定型决策指的是？",
+    "options": {
+      "A": "不知道可能有哪些状态",
+      "B": "只掌握可能出现的各种状态，但各状态概率无从知晓",
+      "C": "概率已知且用期望值决策",
+      "D": "只有一个方案可选"
+    },
+    "answer": "B",
+    "reason": "第三讲定义：只能掌握可能状态，而各状态发生概率无从知晓。",
+    "speak": ["第三讲说：不确定型是状态知道，但概率不知道。"],
+    "panel": "来源：第三讲 · 不确定型决策定义"
+  },
+  {
+    "id": "unc_src_choice_02",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 表4-4 乐观准则·生产线",
+    "question": "【表4-4】生产线收益：a1 1000/600/-200，a2 750/450/50，a3 300/300/80。按乐观准则应选？",
+    "options": {
+      "A": "a₁",
+      "B": "a₂",
+      "C": "a₃",
+      "D": "无法判断"
+    },
+    "answer": "A",
+    "reason": "教材：各方案最大收益 1000、750、300，再取最大得1000，选 a₁。",
+    "speak": ["乐观准则下，生产线例题选 a₁。"],
+    "panel": "来源：第三讲 表4-4\nmax{1000,750,300}=1000 → **a₁**"
+  },
+  {
+    "id": "unc_src_choice_03",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 表4-7 悲观准则·生产线",
+    "question": "【表4-7】同上生产线收益表，按悲观准则应选？",
+    "options": {
+      "A": "a₁",
+      "B": "a₂",
+      "C": "a₃",
+      "D": "任意"
+    },
+    "answer": "C",
+    "reason": "教材：最小收益 -200、50、80，再取最大得80，选 a₃。",
+    "speak": ["悲观准则下，生产线例题选 a₃。"],
+    "panel": "来源：第三讲 表4-7\nmax{-200,50,80}=80 → **a₃**"
+  },
+  {
+    "id": "unc_src_choice_04",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 表4-14 后悔值·生产线",
+    "question": "【表4-14】同上生产线收益表，按后悔值准则应选？",
+    "options": {
+      "A": "a₁（最大后悔280）",
+      "B": "a₂（最大后悔250）",
+      "C": "a₃（最大后悔700）",
+      "D": "a₁与a₂相同"
+    },
+    "answer": "B",
+    "reason": "教材：最大后悔 280、250、700，取最小后悔250，选 a₂。",
+    "speak": ["后悔值准则下，生产线例题选 a₂。"],
+    "panel": "来源：第三讲 表4-14\nmin{280,250,700}=250 → **a₂**"
+  },
+  {
+    "id": "unc_src_choice_05",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 表4-17 等概率·生产线",
+    "question": "【表4-17】同上生产线收益表，按等概率准则应选？",
+    "options": {
+      "A": "a₁（约466.7）",
+      "B": "a₂（约416.7）",
+      "C": "a₃（约226.7）",
+      "D": "a₂与a₃相同"
+    },
+    "answer": "A",
+    "reason": "教材等概率期望总和约466.7、416.7、226.7，选 a₁。",
+    "speak": ["等概率准则下，生产线例题选 a₁。"],
+    "panel": "来源：第三讲 表4-17 → **a₁**"
+  },
+  {
+    "id": "unc_src_choice_06",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 表4-10 折中准则",
+    "question": "【表4-10】生产线收益表，乐观系数 α=0.3 时，折中准则最优方案是？",
+    "options": {
+      "A": "a₁（CV=160）",
+      "B": "a₂（CV=260）",
+      "C": "a₃（CV=146）",
+      "D": "a₁与a₂并列"
+    },
+    "answer": "B",
+    "reason": "教材 α=0.3 时 CV 为160、260、146，选 a₂；α=0.5 时 a₁与a₂同为400。",
+    "speak": ["折中系数零点三时，生产线例题选 a₂。"],
+    "panel": "来源：第三讲 表4-10（α=0.3）→ **a₂**"
+  },
+  {
+    "id": "unc_src_choice_07",
+    "type": "choice",
+    "method_id": "uncertainty_criteria",
+    "source": "知识库/第三讲.md · 表4-5 乐观·水位",
+    "question": "【表4-5】水位问题收益：a1全-2；a2为0/-5/-12；a3为-1.2/-1.2/-13.2。乐观准则应选？",
+    "options": {
+      "A": "a₁",
+      "B": "a₂",
+      "C": "a₃",
+      "D": "无法判断"
+    },
+    "answer": "B",
+    "reason": "教材：各方案最大收益 -2、0、-1.2，再取最大得0，选 a₂。",
+    "speak": ["水位乐观准则例题选 a₂。"],
+    "panel": "来源：第三讲 表4-5 → **a₂**"
+  },
+  {
+    "id": "unc_src_compute_01",
+    "type": "compute",
+    "method_id": "uncertainty_criteria",
+    "compute_kind": "uncertainty",
+    "source": "知识库/第三讲.md · 表4-4/4-7 生产线",
+    "question": "【教材生产线表】a1 1000/600/-200，a2 750/450/50，a3 300/300/80。按悲观准则应选？",
+    "payload_hint": {
+      "alternatives": ["a1", "a2", "a3"],
+      "states": ["高需求", "中需求", "低需求"],
+      "payoffs": [[1000, 600, -200], [750, 450, 50], [300, 300, 80]],
+      "sense": "max",
+      "criterion": "pessimistic"
+    },
+    "answer_best": "a3",
+    "note": "表4-7：选 a₃"
+  },
+  {
+    "id": "unc_src_compute_02",
+    "type": "compute",
+    "method_id": "uncertainty_criteria",
+    "compute_kind": "uncertainty",
+    "source": "知识库/第三讲.md · 表4-4 生产线",
+    "question": "【教材生产线表】同上数据，按乐观准则应选？",
+    "payload_hint": {
+      "alternatives": ["a1", "a2", "a3"],
+      "states": ["高需求", "中需求", "低需求"],
+      "payoffs": [[1000, 600, -200], [750, 450, 50], [300, 300, 80]],
+      "sense": "max",
+      "criterion": "optimistic"
+    },
+    "answer_best": "a1",
+    "note": "表4-4：选 a₁"
+  },
+  {
+    "id": "unc_src_compute_03",
+    "type": "compute",
+    "method_id": "uncertainty_criteria",
+    "compute_kind": "uncertainty",
+    "source": "知识库/第三讲.md · 表4-14 生产线后悔值",
+    "question": "【教材生产线表】同上数据，按后悔值准则应选？",
+    "payload_hint": {
+      "alternatives": ["a1", "a2", "a3"],
+      "states": ["高需求", "中需求", "低需求"],
+      "payoffs": [[1000, 600, -200], [750, 450, 50], [300, 300, 80]],
+      "sense": "max",
+      "criterion": "regret"
+    },
+    "answer_best": "a2",
+    "note": "表4-14：选 a₂"
+  },
+  {
+    "id": "unc_src_compute_04",
+    "type": "compute",
+    "method_id": "uncertainty_criteria",
+    "compute_kind": "uncertainty",
+    "source": "知识库/第三讲.md · 表4-10 折中 α=0.3",
+    "question": "【教材生产线表】同上数据，折中准则 α=0.3 应选？",
+    "payload_hint": {
+      "alternatives": ["a1", "a2", "a3"],
+      "states": ["高需求", "中需求", "低需求"],
+      "payoffs": [[1000, 600, -200], [750, 450, 50], [300, 300, 80]],
+      "sense": "max",
+      "criterion": "hurwicz",
+      "alpha": 0.3
+    },
+    "answer_best": "a2",
+    "note": "表4-10：α=0.3 选 a₂"
+  }
+]
