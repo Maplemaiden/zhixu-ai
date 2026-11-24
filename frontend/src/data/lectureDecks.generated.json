@@ -4,7 +4,7 @@
     "title": "决策理论与方法概述",
     "chapterTitle": "第一讲 · 决策理论与方法概述",
     "methodId": "overview_elements",
-    "topicId": "overview_elements",
+    "topicId": "lecture_ch1",
     "sourceFile": "1（决策理论与方法概述）.pptx",
     "slides": [
       {
@@ -301,7 +301,7 @@
     "title": "风险型决策",
     "chapterTitle": "第二讲 · 风险型决策",
     "methodId": "expected_value",
-    "topicId": "expected_value",
+    "topicId": "lecture_ch2",
     "sourceFile": "2（风险型决策）.pptx",
     "slides": [
       {
@@ -990,7 +990,7 @@
     "title": "不确定型决策分析",
     "chapterTitle": "第三讲 · 不确定型决策分析",
     "methodId": "uncertainty_criteria",
-    "topicId": "uncertainty_criteria",
+    "topicId": "lecture_ch3",
     "sourceFile": "3（不确定型决策分析）.pptx",
     "slides": [
       {
@@ -1280,7 +1280,7 @@
     "title": "多维效用并合模型",
     "chapterTitle": "第四讲 · 多维效用并合模型",
     "methodId": "utility_combine",
-    "topicId": "utility_combine",
+    "topicId": "lecture_ch4",
     "sourceFile": "4（多维效用并合模型）.pptx",
     "slides": [
       {
@@ -1563,7 +1563,7 @@
     "title": "数据包络分析",
     "chapterTitle": "第五讲 · 数据包络分析",
     "methodId": "dea",
-    "topicId": "dea",
+    "topicId": "lecture_ch5",
     "sourceFile": "5（数据包络分析）.pptx",
     "slides": [
       {
@@ -1762,7 +1762,7 @@
     "title": "目标规划",
     "chapterTitle": "第六讲 · 目标规划",
     "methodId": "goal_programming",
-    "topicId": "goal_programming",
+    "topicId": "lecture_ch6",
     "sourceFile": "6（多目标决策问题的线性规划方法）.pptx",
     "slides": [
       {
@@ -1884,7 +1884,7 @@
     "title": "层次分析法",
     "chapterTitle": "第七讲 · 层次分析法",
     "methodId": "ahp",
-    "topicId": "ahp",
+    "topicId": "lecture_ch7",
     "sourceFile": "7（层次分析法）.pptx",
     "slides": [
       {
@@ -2265,7 +2265,7 @@
     "title": "马尔可夫决策",
     "chapterTitle": "第八讲 · 马尔可夫决策",
     "methodId": "markov",
-    "topicId": "markov",
+    "topicId": "lecture_ch8",
     "sourceFile": "8（马尔可夫决策）.pptx",
     "slides": [
       {
@@ -2506,7 +2506,7 @@
     "title": "多属性决策",
     "chapterTitle": "第九讲 · 多属性决策",
     "methodId": "madm",
-    "topicId": "madm_matrix",
+    "topicId": "lecture_ch9",
     "sourceFile": "11（多属性决策）.pptx",
     "slides": [
       {
@@ -3090,7 +3090,7 @@
     "title": "离散事件系统与仿真",
     "chapterTitle": "第十讲 · 离散事件系统与仿真",
     "methodId": "discrete_sim",
-    "topicId": "sim_basics",
+    "topicId": "lecture_ch10",
     "sourceFile": "10（离散事件系统与仿真）.pptx",
     "slides": [
       {

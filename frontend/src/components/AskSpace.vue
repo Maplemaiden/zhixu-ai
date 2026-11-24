@@ -1,31 +1,36 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { api } from "../api";
+import { chapters, readyTopics } from "../data/catalog";
 import { useSpeech } from "../composables/useSpeech";
 import { renderRichText } from "../utils/renderRichText";
-import AvatarPanel from "./AvatarPanel.vue";
 
 const props = defineProps({
   backendOk: { type: Boolean, default: true },
+  seedQuestion: { type: String, default: "" },
 });
 
-const emit = defineEmits(["back"]);
+const emit = defineEmits(["back", "open-topic", "seed-consumed"]);
 
-const { speaking, paused, currentLine, supported, stop, speakText, pause, resume } = useSpeech();
+const { speaking, paused, currentLine, stop, speakText, pause, resume } = useSpeech();
 
 const input = ref("");
 const loading = ref(false);
 const error = ref("");
 const messages = ref([]);
 const logEl = ref(null);
+const inputEl = ref(null);
 
-const avatarLine = computed(() => {
-  if (loading.value) return "知知思考中…";
-  if (currentLine.value) return currentLine.value;
-  const last = [...messages.value].reverse().find((m) => m.role === "assistant");
-  if (last) return String(last.text).replace(/\s+/g, " ").slice(0, 72);
-  return "你好，我是知知。有问题尽管问我。";
-});
+const catalogGroups = computed(() =>
+  chapters
+    .map((ch) => ({
+      id: ch.id,
+      title: ch.title,
+      topics: (ch.topics || []).filter((t) => t.status === "ready"),
+    }))
+    .filter((g) => g.topics.length)
+);
+const readyCount = computed(() => readyTopics().length);
 
 const suggestionPages = [
   [
@@ -63,6 +68,13 @@ async function scrollBottom() {
 
 function useSuggestion(q) {
   input.value = q;
+  nextTick(() => {
+    const el = inputEl.value;
+    if (!el) return;
+    el.focus();
+    const len = el.value.length;
+    el.setSelectionRange(len, len);
+  });
 }
 
 function clearChat() {
@@ -117,6 +129,24 @@ function speakLast() {
   if (last) speakText(String(last.text).replace(/\s+/g, " ").slice(0, 360));
 }
 
+function openRelated(topicId) {
+  stop();
+  emit("open-topic", topicId);
+}
+
+watch(
+  () => props.seedQuestion,
+  async (q) => {
+    const text = String(q || "").trim();
+    if (!text) return;
+    input.value = text;
+    emit("seed-consumed");
+    await nextTick();
+    await send();
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   rollTimer = setInterval(() => {
     if (!rollPaused.value && !messages.value.length) nextSuggestionPage();
@@ -124,28 +154,22 @@ onMounted(() => {
 });
 onUnmounted(() => {
   if (rollTimer) clearInterval(rollTimer);
+  stop();
 });
 </script>
 
 <template>
   <section class="ask-space" aria-label="答疑空间">
-    <div class="ask-bg" aria-hidden="true" />
-    <div class="ask-bg-veil" aria-hidden="true" />
-
-    <button class="ask-exit" type="button" @click="emit('back')">
-      <span aria-hidden="true">←</span>
-      退出
-    </button>
-
     <div class="ask-layout">
       <div class="ask-chat">
         <header class="ask-chat-head">
           <div>
             <h1>答疑空间</h1>
-            <p>《决策理论与方法》全课答疑</p>
+            <p>《决策理论与方法》全课答疑 · 可从右侧进知识点</p>
           </div>
           <div class="ask-chat-links">
             <button class="linkish" type="button" :disabled="!messages.length" @click="clearChat">清空</button>
+            <button class="linkish" type="button" @click="emit('back')">回首页</button>
           </div>
         </header>
 
@@ -195,12 +219,19 @@ onUnmounted(() => {
 
         <footer class="composer">
           <div v-if="messages.length" class="suggest-row compact">
-            <button v-for="s in visibleSuggestions.slice(0, 3)" :key="s" class="chip" type="button" @click="useSuggestion(s)">
+            <button
+              v-for="s in visibleSuggestions.slice(0, 3)"
+              :key="s"
+              class="chip"
+              type="button"
+              @click="useSuggestion(s)"
+            >
               {{ s }}
             </button>
           </div>
           <div class="composer-box">
             <textarea
+              ref="inputEl"
               v-model="input"
               rows="2"
               placeholder="输入问题，Enter 发送…"
@@ -223,21 +254,36 @@ onUnmounted(() => {
         </footer>
       </div>
 
-      <aside class="ask-avatar">
-        <div class="ask-avatar-stage">
-          <AvatarPanel
-            :speaking="speaking"
-            :paused="paused"
-            :line="avatarLine"
-            :supported="supported"
-            section-label="答疑空间"
-            @play="speakLast"
-            @pause="pause"
-            @resume="resume"
-            @stop="stop"
-            @prev="() => {}"
-            @next="() => {}"
-          />
+      <aside class="ask-aside">
+        <div class="ask-aside-head">
+          <h2>课程目录</h2>
+          <p>答完可点进对应知识点系统学</p>
+        </div>
+        <div class="ask-aside-scroll">
+          <section v-for="g in catalogGroups" :key="g.id" class="ask-catalog-group">
+            <h3>{{ g.title }}</h3>
+            <button
+              v-for="t in g.topics"
+              :key="t.id"
+              class="ask-topic-link"
+              type="button"
+              @click="openRelated(t.id)"
+            >
+              <span>{{ t.title }}</span>
+              <small>{{ t.type }}</small>
+            </button>
+          </section>
+        </div>
+        <div class="ask-aside-foot">
+          <p class="ask-aside-tip">共 {{ readyCount }} 个可学知识点</p>
+          <div class="ask-aside-status" :class="{ live: speaking && !paused }">
+            <span class="dot" />
+            {{ speaking ? (paused ? "口播已暂停" : "知知口播中") : "待命" }}
+            <button v-if="speaking" class="linkish" type="button" @click="paused ? resume() : pause()">
+              {{ paused ? "继续" : "暂停" }}
+            </button>
+            <button v-if="speaking || currentLine" class="linkish" type="button" @click="stop">停止</button>
+          </div>
         </div>
       </aside>
     </div>
@@ -246,70 +292,28 @@ onUnmounted(() => {
 
 <style scoped>
 .ask-space {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  overflow: hidden;
-  color: #e8f2ee;
-}
-.ask-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    url("/ask-space-bg.png") center / cover no-repeat,
-    linear-gradient(160deg, #123041 0%, #1a3d48 45%, #0f2430 100%);
-}
-.ask-bg-veil {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(10, 22, 34, 0.55) 0%, rgba(10, 22, 34, 0.28) 58%, rgba(10, 22, 34, 0.42) 100%),
-    radial-gradient(ellipse 60% 50% at 78% 42%, rgba(120, 190, 170, 0.12), transparent 62%);
-  pointer-events: none;
-}
-.ask-exit {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(207, 238, 227, 0.28);
-  background: rgba(16, 32, 46, 0.62);
-  backdrop-filter: blur(12px);
-  color: #e8f2ee;
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-}
-.ask-exit:hover {
-  background: rgba(24, 52, 64, 0.86);
-  border-color: #9fd6c4;
-  color: #cfeee3;
+  height: 100%;
+  min-height: 0;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
 }
 .ask-layout {
-  position: relative;
-  z-index: 2;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.78fr);
-  gap: 18px;
-  padding: 68px 22px 22px;
-  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.72fr);
+  gap: 16px;
 }
 .ask-chat {
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
-  border: 1px solid rgba(207, 238, 227, 0.16);
-  background: rgba(12, 28, 40, 0.55);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--shadow);
   overflow: hidden;
 }
 .ask-chat-head {
@@ -317,26 +321,27 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  padding: 18px 20px 12px;
-  border-bottom: 1px solid rgba(207, 238, 227, 0.1);
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid #eceef5;
   flex-shrink: 0;
+  background: #fbfbff;
 }
 .ask-chat-head h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   letter-spacing: -0.02em;
-  color: #f3faf7;
+  color: var(--ink);
 }
 .ask-chat-head p {
-  margin: 6px 0 0;
-  font-size: 13px;
-  color: #9fd6c4;
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--muted);
   font-weight: 650;
 }
 .ask-chat-links {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   padding-top: 4px;
 }
@@ -344,19 +349,20 @@ onUnmounted(() => {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 18px 20px;
+  padding: 16px 18px;
   scrollbar-width: thin;
+  background: #fff;
 }
 .welcome {
-  margin: 8vh auto 0;
+  margin: 6vh auto 0;
   max-width: 560px;
   text-align: center;
 }
 .welcome-lead {
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   font-size: 15px;
   line-height: 1.7;
-  color: #b7c9c4;
+  color: var(--text);
 }
 .suggest-viewport {
   overflow: hidden;
@@ -385,19 +391,21 @@ onUnmounted(() => {
   margin-bottom: 12px;
 }
 .chip {
-  border: 1px solid rgba(159, 214, 196, 0.28);
-  background: rgba(255, 255, 255, 0.06);
-  color: #d7eee5;
+  border: 1px solid #e6e7f2;
+  background: #fff;
+  color: #5b6280;
   border-radius: 999px;
   padding: 10px 14px;
   font-size: 12px;
   font-weight: 650;
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 .chip:hover {
-  background: rgba(159, 214, 196, 0.14);
-  border-color: #9fd6c4;
+  border-color: #cfc8f5;
+  background: #f6f4ff;
+  color: #4f46a8;
 }
 .bubble-row {
   display: flex;
@@ -412,8 +420,8 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(159, 214, 196, 0.22);
-  color: #cfeee3;
+  background: var(--primary-soft);
+  color: var(--primary);
   display: grid;
   place-items: center;
   font-size: 12px;
@@ -421,20 +429,21 @@ onUnmounted(() => {
   flex: none;
 }
 .bubble-row.mine .bubble-icon {
-  background: #cfeee3;
-  color: #123041;
+  background: #ebe8ff;
+  color: #4f46a8;
 }
 .bubble {
   max-width: min(92%, 680px);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(207, 238, 227, 0.14);
+  background: #f7f8fc;
+  border: 1px solid #eceef5;
   border-radius: 18px;
   padding: 14px 16px;
+  color: var(--text);
 }
 .bubble-row.mine .bubble {
-  background: rgba(207, 238, 227, 0.92);
+  background: #ebe8ff;
   border-color: transparent;
-  color: #123041;
+  color: var(--ink);
 }
 .bubble-text {
   font-size: 15px;
@@ -461,39 +470,39 @@ onUnmounted(() => {
 }
 .bubble-text :deep(strong) {
   font-weight: 800;
-  color: #e8fff6;
+  color: var(--ink);
 }
 .bubble-text :deep(code) {
   font-size: 0.92em;
   padding: 0.05em 0.35em;
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(102, 88, 223, 0.08);
 }
 .bubble-meta {
   margin-top: 8px;
   font-size: 11px;
-  color: #8eaaa2;
+  color: #a5aab9;
 }
 .bubble-row.mine .bubble-meta {
-  color: #4d6b64;
+  color: #8a84b8;
 }
 .bubble-sources {
   margin-top: 8px;
   font-size: 12px;
-  color: #9fd6c4;
+  color: #6b5fad;
   line-height: 1.5;
 }
 .thinking {
   margin: 8px 0 0 48px;
   font-size: 13px;
-  color: #9fd6c4;
+  color: var(--primary);
   font-weight: 650;
 }
 .composer {
   flex-shrink: 0;
   padding: 12px 16px 16px;
-  border-top: 1px solid rgba(207, 238, 227, 0.1);
-  background: rgba(8, 20, 30, 0.35);
+  border-top: 1px solid #eceef5;
+  background: #fbfbff;
 }
 .composer-box {
   display: grid;
@@ -501,9 +510,13 @@ onUnmounted(() => {
   gap: 10px;
   align-items: end;
   padding: 12px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(207, 238, 227, 0.16);
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e2e4ef;
+}
+.composer-box:focus-within {
+  border-color: #c8c3f2;
+  box-shadow: 0 0 0 3px rgba(102, 88, 223, 0.08);
 }
 .composer textarea {
   width: 100%;
@@ -516,13 +529,13 @@ onUnmounted(() => {
   font: inherit;
   font-size: 15px;
   line-height: 1.55;
-  color: #f3faf7;
+  color: var(--ink);
 }
 .composer textarea:focus {
   outline: none;
 }
 .composer textarea::placeholder {
-  color: #8aa09a;
+  color: #9aa1b5;
 }
 .send-btn {
   border: 0;
@@ -530,14 +543,14 @@ onUnmounted(() => {
   min-width: 72px;
   height: 44px;
   padding: 0 16px;
-  background: #cfeee3;
-  color: #123041;
+  background: var(--primary);
+  color: #fff;
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
 }
 .send-btn:hover:not(:disabled) {
-  background: #e4f7f0;
+  background: #5749c9;
 }
 .send-btn:disabled {
   opacity: 0.45;
@@ -553,14 +566,14 @@ onUnmounted(() => {
 .linkish {
   border: 0;
   background: transparent;
-  color: #9bb0aa;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 650;
   padding: 0;
   cursor: pointer;
 }
 .linkish:hover:not(:disabled) {
-  color: #cfeee3;
+  color: var(--primary);
 }
 .linkish:disabled {
   opacity: 0.4;
@@ -568,96 +581,138 @@ onUnmounted(() => {
 }
 .composer-hint {
   font-size: 11px;
-  color: #7d918b;
+  color: #a5aab9;
 }
 .err {
   margin: 8px 0 0;
-  color: #f0a399;
+  color: var(--bad);
   font-size: 13px;
 }
-.ask-avatar {
+.ask-aside {
   min-width: 0;
   min-height: 0;
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
-.ask-avatar-stage {
+.ask-aside-head {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #eceef5;
+  background: #fbfbff;
+  flex-shrink: 0;
+}
+.ask-aside-head h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 850;
+  color: var(--ink);
+}
+.ask-aside-head p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.ask-aside-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+  scrollbar-width: thin;
+}
+.ask-catalog-group {
+  margin-bottom: 14px;
+}
+.ask-catalog-group h3 {
+  margin: 0 0 8px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #8a90a5;
+}
+.ask-topic-link {
   width: 100%;
-  border-radius: 24px;
-  border: 1px solid rgba(207, 238, 227, 0.16);
-  background: rgba(12, 28, 40, 0.42);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 12px;
+  padding: 9px 10px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.ask-topic-link:hover {
+  background: #f6f4ff;
+  border-color: #e4dff8;
+}
+.ask-topic-link span {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.ask-topic-link small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.ask-aside-foot {
+  flex-shrink: 0;
+  padding: 12px 14px 14px;
+  border-top: 1px solid #eceef5;
+  background: #fbfbff;
+}
+.ask-aside-tip {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #a5aab9;
+}
+.ask-aside-status {
   display: flex;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
 }
-.ask-avatar-stage :deep(.avatar-panel) {
-  width: 100%;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
+.ask-aside-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c5cada;
 }
-.ask-avatar-stage :deep(.avatar-scene) {
-  height: min(42vh, 360px);
-  background: radial-gradient(circle at 50% 35%, rgba(207, 238, 227, 0.28), rgba(24, 58, 70, 0.85) 70%);
-  border-color: rgba(207, 238, 227, 0.18);
+.ask-aside-status.live .dot {
+  background: #52b996;
+  box-shadow: 0 0 0 3px rgba(82, 185, 150, 0.2);
 }
-.ask-avatar-stage :deep(.avatar-status) {
-  color: #e8f2ee;
-}
-.ask-avatar-stage :deep(.tiny) {
-  color: #9fd6c4;
-}
-.ask-avatar-stage :deep(.player) {
-  background: rgba(255, 255, 255, 0.08);
-}
-.ask-avatar-stage :deep(.player-sub) {
-  color: #9bb0aa;
-}
-.ask-avatar-stage :deep(.link) {
-  color: #cfeee3;
-}
-.ask-avatar-stage :deep(.speechbubble) {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(207, 238, 227, 0.14);
-  color: #d7e8e2;
-  min-height: 72px;
+.ask-aside-status.live {
+  color: #158a65;
 }
 @media (max-width: 980px) {
   .ask-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
-    padding: 64px 12px 12px;
-    gap: 12px;
+    grid-template-rows: minmax(0, 1fr) minmax(180px, 32vh);
   }
-  .ask-avatar {
-    order: -1;
-    max-height: 280px;
+  .ask-aside {
+    order: 1;
   }
-  .ask-avatar-stage {
-    padding: 10px;
-  }
-  .ask-avatar-stage :deep(.avatar-scene) {
-    height: 150px;
-  }
-  .ask-avatar-stage :deep(.speechbubble) {
-    min-height: 0;
-    margin-top: 8px;
-    padding: 8px 10px;
+  .welcome {
+    margin-top: 3vh;
   }
 }
 @media (max-width: 720px) {
-  .ask-exit {
-    top: 12px;
-    left: 12px;
-  }
   .composer-hint {
     display: none;
   }
-  .welcome {
-    margin-top: 4vh;
+  .ask-chat-head h1 {
+    font-size: 18px;
   }
 }
 </style>

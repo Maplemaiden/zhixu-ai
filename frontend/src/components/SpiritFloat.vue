@@ -6,13 +6,15 @@ import { findTopic, resolveTopicRef } from "../data/catalog";
 
 const props = defineProps({
   visible: { type: Boolean, default: true },
-  contextId: { type: String, default: "expected_value" },
+  contextId: { type: String, default: "lecture_ch2" },
   backendOk: { type: Boolean, default: true },
   /** 外部口播（学习台等） */
   externalSpeaking: { type: Boolean, default: false },
   externalPaused: { type: Boolean, default: false },
   externalLine: { type: String, default: "" },
   bottomPad: { type: Number, default: 24 },
+  /** 进入时默认展开（课件页用） */
+  defaultExpanded: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["open-qa", "open-topic", "stop-external"]);
@@ -36,7 +38,7 @@ const dragMoved = ref(false);
 let dragOffset = { x: 0, y: 0 };
 let ptrId = null;
 
-const contextMeta = computed(() => resolveTopicRef(props.contextId) || findTopic("expected_value"));
+const contextMeta = computed(() => resolveTopicRef(props.contextId) || findTopic("lecture_ch2"));
 const methodId = computed(
   () => contextMeta.value?.topic?.methodId || contextMeta.value?.topic?.id || "expected_value"
 );
@@ -233,23 +235,34 @@ function goTopic() {
   if (id) emit("open-topic", id);
 }
 
+function applyOpenState() {
+  loadPos();
+  if (props.defaultExpanded) {
+    expanded.value = true;
+    nextTick(() => placeExpandedNearDock());
+    return;
+  }
+  if (expanded.value) placeExpandedNearDock();
+  else restoreDock();
+}
+
 watch(
-  () => props.visible,
-  (v) => {
+  () => [props.visible, props.defaultExpanded],
+  ([v]) => {
     if (!v) {
       expanded.value = false;
       return;
     }
-    nextTick(() => {
-      loadPos();
-      if (expanded.value) placeExpandedNearDock();
-      else restoreDock();
-    });
+    nextTick(applyOpenState);
   }
 );
 
 onMounted(() => {
   loadPos();
+  if (props.visible && props.defaultExpanded) {
+    expanded.value = true;
+    nextTick(() => placeExpandedNearDock());
+  }
   window.addEventListener("resize", onResize);
   window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", onPointerUp);

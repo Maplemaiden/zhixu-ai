@@ -11,7 +11,14 @@ import LoginView from "./components/LoginView.vue";
 import PptClassroom from "./components/PptClassroom.vue";
 import SpiritFloat from "./components/SpiritFloat.vue";
 import { casesFor } from "./data/cases";
-import { chapters, course, findTopic, readyTopics, resolveTopicRef } from "./data/catalog";
+import {
+  chapters,
+  course,
+  findTopic,
+  lectureEntriesFromCatalog,
+  readyTopics,
+  resolveTopicRef,
+} from "./data/catalog";
 import { deckForChapter, hasLectureDeck } from "./data/lectureSlides";
 import { narrativeFor } from "./data/topicNarratives";
 import { renderRichText } from "./utils/renderRichText";
@@ -21,7 +28,7 @@ const { user, ready: authReady, isLoggedIn, bootstrap, login, register, logout }
 const view = ref("home");
 const chapterFilter = ref("all");
 const search = ref("");
-const activeTopicId = ref("expected_value");
+const activeTopicId = ref("lecture_ch2");
 const section = ref(0);
 const caseIndex = ref(0);
 const reviewTab = ref("summary");
@@ -29,6 +36,8 @@ const topicNotes = ref([]);
 const allNotes = ref([]);
 const notesLoading = ref(false);
 const classroomChapterId = ref("ch2");
+/** 全屏课件返回去处：lesson | catalog */
+const classroomReturn = ref("catalog");
 /** 桌面侧栏 / 目录页：讲次展开状态 */
 const outlineOpen = ref(Object.fromEntries(chapters.map((ch) => [ch.id, false])));
 const SIDEBAR_KEY = "zhixu_sidebar_collapsed";
@@ -52,7 +61,8 @@ function toggleSidebar() {
 }
 
 const health = ref(null);
-const question = ref("风险型决策和不确定型决策有什么区别？");
+const question = ref("");
+const askInputEl = ref(null);
 
 const defaultHint = {
   goal: "按本知识点步骤卡听讲，再做案例与练习。",
@@ -250,7 +260,7 @@ function resolveReadyTopicId(refId) {
     const p = resolveTopicRef(pid);
     if (p?.topic?.status === "ready") return p.topic.id;
   }
-  return readyTopics()[0]?.id || "expected_value";
+  return readyTopics()[0]?.id || "lecture_ch2";
 }
 const methodId = computed(
   () => current.value?.topic?.methodId || activeTopicId.value || "expected_value"
@@ -309,6 +319,11 @@ const crumb = computed(() => {
 });
 const noteCount = computed(() => allNotes.value.length);
 const activeDeck = computed(() => deckForChapter(classroomChapterId.value));
+/** 当前知识点所属讲的课堂课件（嵌在学习台讲解区） */
+const lessonDeck = computed(() => {
+  const chId = current.value?.chapter?.id;
+  return chId && hasLectureDeck(chId) ? deckForChapter(chId) : null;
+});
 const lectureEntries = computed(() =>
   chapters
     .filter((ch) => hasLectureDeck(ch.id))
@@ -317,13 +332,24 @@ const lectureEntries = computed(() =>
       title: ch.title,
       deckTitle: deckForChapter(ch.id)?.title || ch.title,
       slideCount: deckForChapter(ch.id)?.slides?.length || 0,
+      topicId: deckForChapter(ch.id)?.topicId || ch.topics?.find((t) => t.status === "ready")?.id,
     }))
 );
 
+/** 目录主列表：一讲一个学习台 */
+const catalogLectures = computed(() => {
+  const q = search.value.trim().toLowerCase();
+  return lectureEntriesFromCatalog().filter((lec) => {
+    if (!q) return true;
+    const blob = `${lec.chapterTitle} ${lec.title} ${lec.desc} ${(lec.outline || []).join(" ")}`.toLowerCase();
+    return blob.includes(q);
+  });
+});
+
 const homeContinue = computed(() => {
-  const id = resolveReadyTopicId(store.lastTopicId || "expected_value");
+  const id = resolveReadyTopicId(store.lastTopicId || "lecture_ch2");
   const hit = resolveTopicRef(id);
-  const title = hit?.topic?.title || "期望值准则";
+  const title = hit?.chapter?.title || hit?.topic?.title || "第二讲 · 风险型决策";
   const chapterTitle = hit?.chapter?.title || "";
   return {
     topicId: id,
@@ -332,7 +358,7 @@ const homeContinue = computed(() => {
     chapterTitle,
     eyebrow: "今天，从这里开始",
     headline: `你好，今天我们学${title}。`,
-    continueFrom: chapterTitle ? `${chapterTitle} · ${title}` : title,
+    continueFrom: chapterTitle || title,
   };
 });
 
@@ -351,12 +377,19 @@ function selectChapterFilter(chapterId) {
   if (view.value !== "catalog") go("catalog");
 }
 
-function openClassroom(chapterId) {
+/** 课件讲解：全屏课堂页；入口在学习台/目录，不把幻灯片嵌进讲解正文 */
+function openClassroom(chapterId, from = "catalog") {
   if (!hasLectureDeck(chapterId)) return;
   stop();
   classroomChapterId.value = chapterId;
+  classroomReturn.value = from === "lesson" ? "lesson" : "catalog";
   askOpen.value = false;
   view.value = "classroom";
+}
+
+function leaveClassroom() {
+  if (classroomReturn.value === "lesson") go("lesson");
+  else go("catalog");
 }
 
 watch(
@@ -704,10 +737,33 @@ function go(v) {
   stop();
 }
 
-function openQaSpace() {
+const homeAsk = ref("");
+const qaSeed = ref("");
+const homeAskPresets = [
+  "风险型和不确定型怎么区分？",
+  "期望值准则怎么用？",
+  "AHP 适合什么问题？",
+];
+
+function openQaSpace(seed = "") {
   askOpen.value = false;
   stop();
+  qaSeed.value = typeof seed === "string" ? seed.trim() : "";
   view.value = "qa";
+}
+
+function submitHomeAsk() {
+  const q = homeAsk.value.trim();
+  if (!q) return;
+  homeAsk.value = "";
+  openQaSpace(q);
+}
+
+function onHomeAskKeydown(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    submitHomeAsk();
+  }
 }
 function openTopic(id, opts = {}) {
   const hit = resolveTopicRef(id);
@@ -731,14 +787,25 @@ function openTopic(id, opts = {}) {
     persistLesson(topicId, askOpen.value || opts.section >= 1 ? 1 : 0);
   }
 }
+function useAskSuggestion(q) {
+  question.value = q;
+  nextTick(() => {
+    const el = askInputEl.value;
+    if (!el) return;
+    el.focus();
+    const len = el.value.length;
+    el.setSelectionRange(len, len);
+  });
+}
 function openAsk(preset) {
   if (preset) question.value = preset;
-  const id = resolveReadyTopicId(store.lastTopicId || activeTopicId.value || "expected_value");
+  const id = resolveReadyTopicId(store.lastTopicId || activeTopicId.value || "lecture_ch2");
   if (view.value !== "lesson") openTopic(id, { section: 1, ask: true });
   else {
     if (section.value !== 1) gotoSection(1, { speak: false });
     askOpen.value = true;
   }
+  if (preset) nextTick(() => useAskSuggestion(preset));
 }
 function gotoSection(i, { speak = true } = {}) {
   section.value = Math.max(0, Math.min(1, i));
@@ -847,11 +914,13 @@ async function runCaseCompute() {
 }
 
 async function doAsk() {
+  const q = question.value.trim();
+  if (!q || askLoading.value) return;
   askLoading.value = true;
   askError.value = "";
   try {
-    const q = question.value.trim();
     chat.value.push({ role: "user", text: q });
+    question.value = "";
     const res = await api.ask(q, methodId.value, {
       section: section.value,
       sectionLabel: lessonParts[section.value],
@@ -866,6 +935,7 @@ async function doAsk() {
     askOpen.value = true;
   } catch (e) {
     askError.value = e.message || String(e);
+    if (!question.value.trim()) question.value = q;
   } finally {
     askLoading.value = false;
   }
@@ -997,14 +1067,9 @@ function runCoach(run) {
     v-if="view === 'classroom' && activeDeck"
     ref="pptRef"
     :deck="activeDeck"
-    @back="go('catalog')"
+    @back="leaveClassroom"
     @open-topic="(id) => openTopic(id)"
     @speech="onClassroomSpeech"
-  />
-  <AskSpace
-    v-else-if="view === 'qa'"
-    :backend-ok="backendOk"
-    @back="go('home')"
   />
   <div v-else class="shell">
     <aside class="sidebar desktop-only" :class="{ collapsed: sidebarCollapsed }">
@@ -1104,18 +1169,28 @@ function runCoach(run) {
     </header>
 
     <main class="main">
-      <div class="topbar desktop-only">
+      <div class="topbar desktop-only" :class="{ slim: view === 'home' || view === 'qa' }">
         <div class="breadcrumb">{{ crumb }}</div>
       </div>
       <div class="m-status-bar mobile-only">
         <span>{{ user?.display_name || user?.username }}</span>
       </div>
 
-      <div class="content" :class="{ 'home-mode': view === 'home' }">
+      <div class="content" :class="{ 'home-mode': view === 'home', 'qa-mode': view === 'qa' }">
+        <!-- QA -->
+        <AskSpace
+          v-if="view === 'qa'"
+          :backend-ok="backendOk"
+          :seed-question="qaSeed"
+          @back="go('home')"
+          @open-topic="(id) => openTopic(id)"
+          @seed-consumed="qaSeed = ''"
+        />
+
         <!-- HOME -->
-        <template v-if="view === 'home'">
+        <template v-else-if="view === 'home'">
           <div class="home-screen">
-            <section class="hero">
+            <section class="hero hero-compact">
               <div class="hero-glow" aria-hidden="true" />
               <div class="hero-copy">
                 <div class="hero-brand">
@@ -1136,6 +1211,7 @@ function runCoach(run) {
               </div>
               <div ref="heroArtEl" class="hero-art">
                 <AvatarPanel
+                  compact
                   :speaking="speaking"
                   :paused="paused"
                   :line="currentLine || `你好，我是知知。`"
@@ -1150,110 +1226,94 @@ function runCoach(run) {
                 />
               </div>
             </section>
+
+            <section class="home-ask" aria-label="向知知提问">
+              <div class="home-ask-greet">
+                <span class="home-ask-mark">知</span>
+                <h2>你好，想问知知什么？</h2>
+              </div>
+              <form class="home-ask-box" @submit.prevent="submitHomeAsk">
+                <textarea
+                  v-model="homeAsk"
+                  rows="1"
+                  placeholder="给知知发送问题…"
+                  aria-label="输入问题"
+                  @keydown="onHomeAskKeydown"
+                />
+                <div class="home-ask-bar">
+                  <span class="home-ask-tag">全课答疑</span>
+                  <button
+                    class="home-ask-send"
+                    type="submit"
+                    :disabled="!homeAsk.trim() || !backendOk"
+                    title="发送并进入答疑空间"
+                  >
+                    ↑
+                  </button>
+                </div>
+              </form>
+              <div class="home-ask-presets">
+                <button
+                  v-for="q in homeAskPresets"
+                  :key="q"
+                  class="chip"
+                  type="button"
+                  @click="openQaSpace(q)"
+                >
+                  {{ q }}
+                </button>
+              </div>
+            </section>
           </div>
         </template>
 
-        <!-- CATALOG -->
+        <!-- CATALOG：一讲一个学习台入口 -->
         <template v-else-if="view === 'catalog'">
           <div class="catalog-head">
-            <h1 class="h1">课程知识点目录</h1>
-          </div>
-
-          <div class="lecture-entry-block card">
-            <div class="lecture-entry-head">
-              <div>
-                <h2 class="h2" style="margin: 0">课件讲解</h2>
-              </div>
-            </div>
-            <div class="lecture-entry-grid">
-              <button
-                v-for="lec in lectureEntries"
-                :key="lec.id"
-                type="button"
-                class="lecture-entry"
-                @click="openClassroom(lec.id)"
-              >
-                <span class="lecture-entry-title">{{ lec.title }}</span>
-                <span class="lecture-entry-meta">{{ lec.deckTitle }} · {{ lec.slideCount }} 页</span>
-                <span class="lecture-entry-go">打开课件 →</span>
-              </button>
-            </div>
+            <h1 class="h1">课程学习</h1>
+            <p class="tiny" style="margin: 8px 0 0">每讲一个学习台，连续学完本讲再进课件或练习。</p>
           </div>
 
           <div class="catalog-topics-head">
-            <h2 class="h2">知识点</h2>
+            <h2 class="h2">各讲学习台</h2>
             <div class="search">
               <span>⌕</span>
-              <input v-model="search" placeholder="搜索知识点..." aria-label="搜索知识点" />
+              <input v-model="search" placeholder="搜索讲次..." aria-label="搜索讲次" />
             </div>
           </div>
 
-          <div class="catalog-layout">
-            <aside class="card chapter-panel">
-              <div class="chapter-title">知识点框架</div>
-              <button
-                class="chapter-btn"
-                :class="{ active: chapterFilter === 'all' }"
-                type="button"
-                @click="selectChapterFilter('all')"
-              >
-                <span>全部知识点</span><span class="tiny">{{ flatTopics.length }}</span>
-              </button>
-              <div v-for="ch in chapters" :key="'cat-' + ch.id" class="catalog-tree-ch">
-                  <button
-                  class="chapter-btn catalog-tree-summary"
-                  :class="{ active: chapterFilter === ch.id }"
-                  type="button"
-                  @click="selectChapterFilter(ch.id)"
-                >
-                  <span
-                    class="outline-caret catalog-caret"
-                    :class="{ open: outlineOpen[ch.id] }"
-                    @click.stop="toggleOutline(ch.id)"
-                  >›</span>
-                  <span>{{ ch.title }}</span>
-                </button>
-                <div v-show="outlineOpen[ch.id]" class="catalog-tree-topics">
-                  <button
-                    v-if="hasLectureDeck(ch.id)"
-                    class="catalog-tree-topic ppt"
-                    type="button"
-                    @click="openClassroom(ch.id)"
-                  >
-                    本讲课件讲解 →
-                  </button>
-                  <button
-                    v-for="t in ch.topics"
-                    :key="'cat-t-' + t.id"
-                    class="catalog-tree-topic"
-                    :class="{ current: activeTopicId === t.id && view === 'lesson' }"
-                    type="button"
-                    @click="openTopic(t.id)"
-                  >
-                    {{ t.title }}
-                  </button>
-                </div>
+          <div class="topic-grid lecture-desk-grid">
+            <article v-for="lec in catalogLectures" :key="lec.topicId" class="card topic-card">
+              <div class="topic-card-top">
+                <span class="pill">整讲</span>
+                <span class="tiny" v-if="store.progress[lec.topicId]">已学过</span>
               </div>
-            </aside>
-            <div class="topic-grid">
-              <article v-for="t in filteredTopics" :key="t.id" class="card topic-card">
-                <div class="topic-card-top">
-                  <span class="pill">{{ t.type }}</span>
-                </div>
-                <div class="tiny" style="margin-top: 10px">{{ t.chapterTitle }}</div>
-                <h3>{{ t.title }}</h3>
-                <p>{{ t.desc }}</p>
-                <div class="progress-track" v-if="store.progress[t.id]">
-                  <div class="progress-fill" :style="{ width: Math.min(100, ((store.progress[t.id].section || 0) + 1) * 25) + '%' }" />
-                </div>
-                <div class="topic-card-footer">
-                  <span class="tiny">{{ store.progress[t.id] ? "继续学习" : "尚未开始" }}</span>
-                  <button class="btn btn-primary btn-small" type="button" @click="openTopic(t.id)">
-                    {{ t.status === "ready" ? "开始学习" : "查看占位" }}
-                  </button>
-                </div>
-              </article>
-            </div>
+              <div class="tiny" style="margin-top: 10px">{{ lec.chapterTitle }}</div>
+              <h3>{{ lec.title }}</h3>
+              <p>{{ lec.desc }}</p>
+              <ul v-if="lec.outline?.length" class="lecture-outline-preview">
+                <li v-for="(item, i) in lec.outline" :key="i">{{ item }}</li>
+              </ul>
+              <div class="progress-track" v-if="store.progress[lec.topicId]">
+                <div
+                  class="progress-fill"
+                  :style="{ width: Math.min(100, ((store.progress[lec.topicId].section || 0) + 1) * 50) + '%' }"
+                />
+              </div>
+              <div class="topic-card-footer">
+                <button
+                  v-if="hasLectureDeck(lec.chapterId)"
+                  class="btn btn-small btn-soft"
+                  type="button"
+                  @click="openClassroom(lec.chapterId)"
+                >
+                  课件
+                </button>
+                <button class="btn btn-primary btn-small" type="button" @click="openTopic(lec.topicId)">
+                  {{ store.progress[lec.topicId] ? "继续本讲" : "进入学习台" }}
+                </button>
+              </div>
+            </article>
           </div>
         </template>
 
@@ -1261,10 +1321,30 @@ function runCoach(run) {
         <template v-else-if="view === 'lesson'">
           <div class="workspace-header">
             <div>
-              <div class="eyebrow">{{ current?.chapter?.title }}</div>
-              <h1 class="h1">{{ current?.topic?.title }}</h1>
+              <div class="eyebrow">课程学习 · 整讲学习台</div>
+              <h1 class="h1">{{ current?.chapter?.title || current?.topic?.title }}</h1>
+              <p class="tiny" style="margin: 8px 0 0">{{ current?.topic?.desc }}</p>
             </div>
-            <button class="btn" type="button" @click="go('catalog')">返回目录</button>
+            <div class="workspace-actions">
+              <div class="step-dots" role="tablist" aria-label="学习阶段">
+                <button
+                  v-for="(name, i) in lessonParts"
+                  :key="name"
+                  class="step-dot"
+                  :class="{ active: section === i, done: section > i }"
+                  type="button"
+                  role="tab"
+                  :aria-selected="section === i"
+                  :title="name"
+                  :aria-label="name"
+                  @click="gotoSection(i, { speak: false })"
+                >
+                  <span class="num">{{ i + 1 }}</span>
+                  <span class="step-dot-label">{{ name }}</span>
+                </button>
+              </div>
+              <button class="btn" type="button" @click="go('catalog')">返回目录</button>
+            </div>
           </div>
 
           <div v-if="!topicReady" class="card" style="padding: 24px">
@@ -1274,48 +1354,20 @@ function runCoach(run) {
 
           <div v-else class="workspace-main">
             <section class="card lesson-card">
-              <div class="lesson-top">
-                <span class="tiny">{{ section === 0 ? "讲解" : "做题答疑" }}</span>
-              </div>
-              <div class="step-list two-steps">
-                <button
-                  v-for="(name, i) in lessonParts"
-                  :key="name"
-                  class="step"
-                  :class="{ active: section === i, done: section > i }"
-                  type="button"
-                  @click="gotoSection(i, { speak: false })"
-                >
-                  <span class="num">{{ i + 1 }}</span>{{ name }}
-                </button>
-              </div>
-
               <!-- 讲解：知识库正文为主，提纲为辅，案例跟做 -->
               <div class="lesson-body" v-if="section === 0">
-                <h2>{{ current.topic.title }}</h2>
+                <h2>本讲讲解</h2>
                 <template v-if="overviewStory.length">
                   <p v-for="(para, i) in overviewStory" :key="'intro-' + i" class="intro-plain">{{ para }}</p>
                 </template>
                 <p v-else class="intro-plain">{{ current.topic.desc }}</p>
 
-                <h3 class="teach-h3">讲解正文</h3>
-                <LessonReadingPanel
-                  :sections="lessonReading"
-                  :notes="topicNotes"
-                  :source="lessonReadingSource"
-                  :create-note="createLessonNote"
-                  empty-hint="讲义暂未加载"
-                  @reload="loadTopicAssets"
-                />
-                <div v-if="topicNotes.length" class="topic-notes-mini">
-                  <button class="btn btn-small btn-soft" type="button" @click="reviewTab = 'notes'; go('review')">
-                    标注 {{ topicNotes.length }}
-                  </button>
-                </div>
-
                 <details class="outline-fold" open>
-                  <summary>本讲提纲（步骤卡）</summary>
-                  <template v-if="overviewDetails.length">
+                  <summary>本讲提纲</summary>
+                  <ol v-if="current.topic.outline?.length">
+                    <li v-for="(item, i) in current.topic.outline" :key="'o-' + i">{{ item }}</li>
+                  </ol>
+                  <template v-else-if="overviewDetails.length">
                     <div v-for="(d, i) in overviewDetails" :key="'d-' + i" class="outline-block">
                       <b>{{ i + 1 }}. {{ d.title }}</b>
                       <ul>
@@ -1336,6 +1388,31 @@ function runCoach(run) {
                     {{ hint.formula }}
                   </div>
                 </details>
+
+                <h3 class="teach-h3">讲解正文</h3>
+                <LessonReadingPanel
+                  :sections="lessonReading"
+                  :notes="topicNotes"
+                  :source="lessonReadingSource"
+                  :create-note="createLessonNote"
+                  empty-hint="讲义暂未加载"
+                  @reload="loadTopicAssets"
+                />
+                <div v-if="topicNotes.length" class="topic-notes-mini">
+                  <button class="btn btn-small btn-soft" type="button" @click="reviewTab = 'notes'; go('review')">
+                    标注 {{ topicNotes.length }}
+                  </button>
+                </div>
+
+                <div v-if="lessonDeck" class="lesson-ppt-entry">
+                  <div class="lesson-ppt-copy">
+                    <b>本讲课堂课件</b>
+                    <span class="tiny">{{ lessonDeck.slides.length }} 页 · 全屏讲解</span>
+                  </div>
+                  <button class="btn btn-primary" type="button" @click="openClassroom(lessonDeck.chapterId, 'lesson')">
+                    进入课件讲解 →
+                  </button>
+                </div>
 
                 <template v-if="activeCase">
                   <h3 class="teach-h3">例题跟做</h3>
@@ -1447,7 +1524,13 @@ function runCoach(run) {
                 <h3 class="teach-h3">答疑</h3>
                 <section class="ask-inline ask-inline-open">
                   <div class="ask-suggest-row">
-                    <button v-for="q in askSuggestions" :key="q" class="chip" type="button" @click="question = q">
+                    <button
+                      v-for="q in askSuggestions"
+                      :key="q"
+                      class="chip"
+                      type="button"
+                      @click="useAskSuggestion(q)"
+                    >
                       {{ q }}
                     </button>
                   </div>
@@ -1468,12 +1551,23 @@ function runCoach(run) {
                     </div>
                   </div>
                   <div class="composer-box">
-                    <textarea v-model="question" rows="2" :placeholder="'针对「' + current.topic.title + '」追问…'" />
+                    <textarea
+                      ref="askInputEl"
+                      v-model="question"
+                      rows="2"
+                      :placeholder="'点上方预设，或针对「' + current.topic.title + '」直接输入…'"
+                      @keydown.enter.exact.prevent="doAsk"
+                    />
                     <div class="composer-footer">
                       <button class="btn btn-small" type="button" @click="gotoSection(0, { speak: false })">
                         返回讲解
                       </button>
-                      <button class="btn btn-primary btn-small" type="button" :disabled="askLoading || !backendOk" @click="doAsk">
+                      <button
+                        class="btn btn-primary btn-small"
+                        type="button"
+                        :disabled="askLoading || !backendOk || !question.trim()"
+                        @click="doAsk"
+                      >
                         {{ askLoading ? "生成中…" : "发送" }}
                       </button>
                     </div>
@@ -1625,11 +1719,12 @@ function runCoach(run) {
 
   <SpiritFloat
     :visible="spiritFloatVisible"
-    :context-id="view === 'classroom' && activeDeck ? activeDeck.topicId : store.lastTopicId || activeTopicId || 'expected_value'"
+    :context-id="view === 'classroom' && activeDeck ? activeDeck.topicId : store.lastTopicId || activeTopicId || 'lecture_ch2'"
     :backend-ok="backendOk"
     :external-speaking="view === 'classroom' ? classroomSpeaking : speaking"
     :external-paused="view === 'classroom' ? false : paused"
     :external-line="view === 'classroom' ? classroomLine : currentLine"
+    :default-expanded="view === 'classroom'"
     :bottom-pad="72"
     @open-qa="openQaSpace"
     @open-topic="(id) => openTopic(id)"
@@ -1818,6 +1913,19 @@ function runCoach(run) {
   gap: 10px;
   flex-wrap: wrap;
 }
+.lecture-outline-preview {
+  margin: 10px 0 0;
+  padding-left: 1.15em;
+  color: #5a6a78;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.lecture-outline-preview li {
+  margin: 2px 0;
+}
+.lecture-desk-grid {
+  margin-bottom: 24px;
+}
 .lecture-entry-block {
   padding: 18px 18px 14px;
   margin: 18px 0 20px;
@@ -1953,6 +2061,10 @@ function runCoach(run) {
   top: 0;
   z-index: 4;
   backdrop-filter: blur(12px);
+  transition: height 0.2s ease;
+}
+.topbar.slim {
+  height: 52px;
 }
 .breadcrumb {
   font-size: 13px;
@@ -1973,27 +2085,146 @@ function runCoach(run) {
   margin: auto;
 }
 .content.home-mode {
-  height: calc(100dvh - 78px);
-  max-height: calc(100dvh - 78px);
-  padding: 24px 42px 28px;
+  height: calc(100dvh - 52px);
+  max-height: calc(100dvh - 52px);
+  padding: 16px 42px 20px;
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+.content.qa-mode {
+  height: calc(100dvh - 52px);
+  max-height: calc(100dvh - 52px);
+  padding: 12px 28px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-width: none;
 }
 .home-screen {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: 14px;
   overflow: hidden;
 }
 .home-screen .hero {
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 0;
 }
 .home-screen .hero-art {
   min-height: 0;
+}
+.home-ask {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 8px 12px 4px;
+}
+.home-ask-greet {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.home-ask-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #8b7cf5, #6658df);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+.home-ask-greet h2 {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 850;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.home-ask-box {
+  width: min(720px, 100%);
+  border: 1px solid #e6e8f2;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(25, 33, 75, 0.08);
+  padding: 14px 16px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.home-ask-box:focus-within {
+  border-color: #c8c3f2;
+  box-shadow: 0 12px 40px rgba(102, 88, 223, 0.12);
+}
+.home-ask-box textarea {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  resize: none;
+  min-height: 28px;
+  max-height: 96px;
+  padding: 2px 4px;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.home-ask-box textarea::placeholder {
+  color: #9aa1b5;
+}
+.home-ask-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+.home-ask-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 11px;
+  background: #eef2ff;
+  color: #4f46a8;
+  font-size: 12px;
+  font-weight: 750;
+}
+.home-ask-send {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.home-ask-send:hover:not(:disabled) {
+  background: #5749c9;
+}
+.home-ask-send:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.home-ask-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  width: min(720px, 100%);
 }
 .eyebrow {
   font-size: 12px;
@@ -2087,6 +2318,56 @@ function runCoach(run) {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
   gap: 0;
+}
+.hero.hero-compact {
+  min-height: 0;
+  border-radius: 22px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+}
+.hero.hero-compact .hero-copy {
+  padding: 18px 22px 20px;
+}
+.hero.hero-compact .hero-brand {
+  margin-bottom: 10px;
+}
+.hero.hero-compact .hero-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  font-size: 15px;
+}
+.hero.hero-compact .hero-brand strong {
+  font-size: 16px;
+}
+.hero.hero-compact .hero-eyebrow {
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+.hero.hero-compact h1 {
+  font-size: clamp(20px, 2.2vw, 26px);
+  margin-bottom: 10px;
+  max-width: 18em;
+}
+.hero.hero-compact .hero-buttons {
+  margin-top: 12px;
+  gap: 8px;
+}
+.hero.hero-compact .hero-buttons .btn {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+.hero.hero-compact .hero-continue-from {
+  font-size: 11px;
+}
+.hero.hero-compact .hero-art {
+  min-height: 0;
+  padding: 12px 14px;
+}
+.hero.hero-compact .hero-art :deep(.avatar-scene) {
+  height: 120px;
+}
+.hero.hero-compact .hero-art :deep(.avatar-panel) {
+  padding: 10px;
 }
 .hero-glow {
   position: absolute;
@@ -2452,8 +2733,72 @@ function runCoach(run) {
 .workspace-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 18px;
   margin-bottom: 21px;
+}
+.workspace-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.step-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #f4f5fa;
+  border: 1px solid #e8eaf3;
+}
+.step-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: #9095a8;
+  border-radius: 999px;
+  padding: 6px 10px 6px 6px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.step-dot .num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid #e6e7f2;
+  color: #9095a8;
+  font-size: 12px;
+  font-weight: 800;
+}
+.step-dot.active {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.step-dot.active .num {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.step-dot.done:not(.active) .num {
+  background: #e9faf3;
+  border-color: #bfe9d8;
+  color: #158a65;
+}
+.step-dot:hover:not(.active) {
+  color: #5b6280;
+}
+.step-dot-label {
+  white-space: nowrap;
 }
 .workspace-main {
   display: grid;
@@ -2592,6 +2937,27 @@ function runCoach(run) {
 .symbol-chip b {
   color: #2f3d5c;
   margin-right: 4px;
+}
+.lesson-ppt-entry {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid #d7e3db;
+  border-radius: 14px;
+  background: #f3faf7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.lesson-ppt-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lesson-ppt-copy b {
+  font-size: 15px;
+  color: #18352f;
 }
 .exit-teach {
   margin-top: 22px;
@@ -2770,9 +3136,16 @@ function runCoach(run) {
   border: 1px solid #e6e7f2;
   background: #fff;
   border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 11px;
+  padding: 7px 12px;
+  font-size: 12px;
+  line-height: 1.45;
   color: #5b6280;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.chip:hover {
+  border-color: #cfc8f5;
+  background: #f6f4ff;
+  color: #4f46a8;
 }
 .msg-sources {
   margin-top: 6px;
@@ -2924,22 +3297,44 @@ function runCoach(run) {
   border-top: 1px solid var(--border);
 }
 .composer-box {
-  border: 1px solid #dee0ec;
-  border-radius: 14px;
-  padding: 12px;
+  border: 1px solid #e2e4ef;
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: #fafbff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
+.composer-box:focus-within {
+  border-color: #c8c3f2;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(102, 88, 223, 0.08);
+}
+.composer-box textarea,
 .composer textarea {
+  display: block;
   width: 100%;
   border: 0;
   outline: 0;
-  resize: vertical;
-  min-height: 54px;
+  resize: none;
+  min-height: 52px;
+  max-height: 140px;
+  padding: 2px 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.composer-box textarea::placeholder,
+.composer textarea::placeholder {
+  color: #9aa1b5;
 }
 .composer-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eceef5;
 }
 .qa-aside {
   padding: 20px;
@@ -3151,11 +3546,6 @@ function runCoach(run) {
     padding: 14px 14px calc(88px + env(safe-area-inset-bottom));
     max-width: none;
   }
-  .content.home-mode {
-    height: calc(100dvh - 58px - 28px - 64px - env(safe-area-inset-bottom));
-    max-height: calc(100dvh - 58px - 28px - 64px - env(safe-area-inset-bottom));
-    padding: 12px 14px 10px;
-  }
   .m-bottom-nav {
     position: fixed;
     left: 0;
@@ -3205,47 +3595,76 @@ function runCoach(run) {
     font-size: 13px;
     line-height: 1.7;
   }
-  .hero {
+  .content.home-mode,
+  .content.qa-mode {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 12px 14px 88px;
+  }
+  .topbar.slim {
+    height: 48px;
+  }
+  .hero,
+  .hero.hero-compact {
     display: flex;
     flex-direction: column-reverse;
     min-height: 0;
-    border-radius: 20px;
+    border-radius: 18px;
   }
-  .hero-copy {
-    padding: 18px 16px 20px;
+  .hero-copy,
+  .hero.hero-compact .hero-copy {
+    padding: 14px 14px 16px;
   }
-  .hero-brand {
-    margin-bottom: 14px;
+  .hero-brand,
+  .hero.hero-compact .hero-brand {
+    margin-bottom: 10px;
   }
-  .hero-mark {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
+  .hero-mark,
+  .hero.hero-compact .hero-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
   }
-  .hero-brand strong {
-    font-size: 17px;
+  .hero-brand strong,
+  .hero.hero-compact .hero-brand strong {
+    font-size: 15px;
   }
-  .hero h1 {
-    font-size: 24px;
+  .hero h1,
+  .hero.hero-compact h1 {
+    font-size: 20px;
     max-width: none;
   }
-  .hero-art {
+  .hero-art,
+  .hero.hero-compact .hero-art {
     width: 100%;
-    min-height: 220px;
+    min-height: 0;
     max-width: none;
-    padding: 14px;
+    padding: 10px;
   }
-  .hero-art :deep(.avatar-scene) {
-    height: 160px;
+  .hero-art :deep(.avatar-scene),
+  .hero.hero-compact .hero-art :deep(.avatar-scene) {
+    height: 110px;
   }
-  .hero-buttons {
+  .hero-buttons,
+  .hero.hero-compact .hero-buttons {
     display: grid;
     grid-template-columns: 1fr;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 10px;
   }
   .hero-buttons .btn {
     width: 100%;
+  }
+  .home-ask {
+    justify-content: flex-start;
+    padding: 4px 0 12px;
+  }
+  .home-ask-greet h2 {
+    font-size: 20px;
+  }
+  .home-ask-box {
+    border-radius: 22px;
   }
   .section-row {
     margin: 20px 0 12px;
@@ -3312,11 +3731,20 @@ function runCoach(run) {
     font-size: 12px;
   }
   .workspace-header {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
     margin-bottom: 12px;
   }
-  .workspace-header > .btn {
-    margin-top: 10px;
+  .workspace-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .step-dot-label {
+    max-width: 4.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .workspace-main {
     display: flex !important;
@@ -3339,15 +3767,6 @@ function runCoach(run) {
   .intro-plain {
     font-size: 14px;
     line-height: 1.85;
-  }
-  .step-list.two-steps {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .step {
-    font-size: 12px;
-    justify-content: center;
   }
   .exit-teach,
   .coach-actions,

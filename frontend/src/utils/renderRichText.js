@@ -178,14 +178,19 @@ export function renderLessonMarkdown(text) {
       continue;
     }
 
-    const h3 = line.match(/^###\s+(.+)$/);
-    const h2 = line.match(/^##\s+(.+)$/);
-    const h1 = line.match(/^#\s+(.+)$/);
-    const li = line.match(/^[-*]\s+(.+)$/);
-    if (h1 || h2 || h3) {
+    // 先匹配更长的 #，避免 #### 落成普通段落把井号露出来
+    const h5 = trimmed.match(/^#####\s+(.+)$/);
+    const h4 = trimmed.match(/^####\s+(.+)$/);
+    const h3 = trimmed.match(/^###\s+(.+)$/);
+    const h2 = trimmed.match(/^##\s+(.+)$/);
+    const h1 = trimmed.match(/^#\s+(.+)$/);
+    const li = trimmed.match(/^[-*]\s+(.+)$/);
+    if (h1 || h2 || h3 || h4 || h5) {
       closeUl();
-      const t = escapeHtml((h1 || h2 || h3)[1]);
-      out.push(h1 ? `<h3 class="md-h">${t}</h3>` : `<h4 class="md-h">${t}</h4>`);
+      const raw = (h1 || h2 || h3 || h4 || h5)[1];
+      const t = formatInline(raw);
+      const tag = h1 ? "h3" : h2 || h3 ? "h4" : "h5";
+      out.push(`<${tag} class="md-h">${t}</${tag}>`);
       i += 1;
       continue;
     }

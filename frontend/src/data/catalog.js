@@ -1,13 +1,56 @@
-/** 课程目录：按「讲」分组，讲内拆细知识点（学习台入口）
- * methodId → 步骤卡/答疑
- * bankId / casesId → 可选，缺省等于 methodId（细知识点可共用整讲题库/案例）
+/** 课程目录：一讲一个学习台入口
+ * methodId → 步骤卡/答疑主线
+ * bankId / casesId → 整讲题库/案例（缺省等于 methodId）
+ * 旧细知识点 id 经 TOPIC_ALIASES / resolveTopicRef 映射到本讲入口
  */
 
 export const course = {
   name: "决策理论与方法",
   assistant: "知序 AI",
   teacher: "王军",
-  blurb: "课后自主学习与答疑助教：按讲进入，再按知识点分步学、追问与练习。",
+  blurb: "课后自主学习与答疑助教：按讲进入学习台，连续学、追问与练习。",
+};
+
+/** 原细知识点 / 旧 method·bank id → 本讲唯一 topic id */
+export const TOPIC_ALIASES = {
+  overview_scope: "lecture_ch1",
+  overview_elements: "lecture_ch1",
+  overview_types: "lecture_ch1",
+  overview_process: "lecture_ch1",
+  decision_overview: "lecture_ch1",
+
+  expected_value: "lecture_ch2",
+  decision_tree: "lecture_ch2",
+  bayes: "lecture_ch2",
+
+  uncertainty_setup: "lecture_ch3",
+  uncertainty_criteria: "lecture_ch3",
+
+  utility_system: "lecture_ch4",
+  utility_combine: "lecture_ch4",
+
+  dea_motivation: "lecture_ch5",
+  dea: "lecture_ch5",
+
+  gp_deviations: "lecture_ch6",
+  goal_programming: "lecture_ch6",
+
+  ahp_structure: "lecture_ch7",
+  ahp: "lecture_ch7",
+
+  markov_property: "lecture_ch8",
+  markov: "lecture_ch8",
+
+  madm_matrix: "lecture_ch9",
+  madm_preprocess: "lecture_ch9",
+  madm9_prep: "lecture_ch9",
+  madm9_weight: "lecture_ch9",
+  madm: "lecture_ch9",
+  madm9_scoring: "lecture_ch9",
+  madm9_outranking: "lecture_ch9",
+
+  sim_basics: "lecture_ch10",
+  discrete_sim: "lecture_ch10",
 };
 
 export const chapters = [
@@ -17,44 +60,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "overview_scope",
-        title: "课程定位与广义决策",
-        desc: "这门课学什么、为什么学；西蒙「管理就是决策」；狭义 vs 广义。",
-        type: "概念",
-        status: "ready",
-        methodId: "overview_scope",
-        bankId: "decision_overview",
-        casesId: "decision_overview",
-      },
-      {
-        id: "overview_elements",
-        title: "决策六要素",
-        desc: "决策者、目标、方案、自然状态、结果、准则；鸡蛋煎饼案例对齐。",
-        type: "概念",
+        id: "lecture_ch1",
+        title: "第一讲学习台",
+        desc: "课程定位、六要素、风险/不确定分流、五原则与五步骤；本讲课件与案例。",
+        type: "整讲",
         status: "ready",
         methodId: "overview_elements",
         bankId: "decision_overview",
         casesId: "decision_overview",
-      },
-      {
-        id: "overview_types",
-        title: "决策分类与分流",
-        desc: "战略/战术、程序化、确定型·风险型·不确定型（有无概率）等。",
-        type: "概念",
-        status: "ready",
-        methodId: "overview_types",
-        bankId: "decision_overview",
-        casesId: "decision_overview",
-      },
-      {
-        id: "overview_process",
-        title: "五原则与五步骤",
-        desc: "信息充分等五原则；形成问题→定目标→拟方案→选方案→实施反馈。",
-        type: "概念",
-        status: "ready",
-        methodId: "overview_process",
-        bankId: "decision_overview",
-        casesId: "decision_overview",
+        outline: ["课程定位与广义决策", "决策六要素", "决策分类与分流", "五原则与五步骤"],
       },
     ],
   },
@@ -64,28 +78,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "expected_value",
-        title: "期望值准则",
-        desc: "概率已知时按期望损益选优；含程序验算。",
-        type: "计算方法",
+        id: "lecture_ch2",
+        title: "第二讲学习台",
+        desc: "期望值准则（含验算）；决策树与贝叶斯在本讲连续学习，题库暂以期望值为主。",
+        type: "整讲",
         status: "ready",
         methodId: "expected_value",
-      },
-      {
-        id: "decision_tree",
-        title: "决策树分析法",
-        desc: "决策点与状态点；从右向左回推剪枝。",
-        type: "计算方法",
-        status: "ready",
-        methodId: "decision_tree",
-      },
-      {
-        id: "bayes",
-        title: "贝叶斯决策分析",
-        desc: "先验→后验修正，再按后验期望决策。",
-        type: "计算方法",
-        status: "ready",
-        methodId: "bayes",
+        bankId: "expected_value",
+        casesId: "expected_value",
+        outline: ["期望值准则", "决策树分析法", "贝叶斯决策分析"],
       },
     ],
   },
@@ -95,22 +96,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "uncertainty_setup",
-        title: "不确定型适用条件",
-        desc: "状态可知但概率未知；与风险型的唯一差别。",
-        type: "概念",
-        status: "ready",
-        methodId: "uncertainty_setup",
-        bankId: "uncertainty_criteria",
-        casesId: "uncertainty_criteria",
-      },
-      {
-        id: "uncertainty_criteria",
-        title: "不确定型五大准则",
-        desc: "乐观、悲观、折中、后悔值、等概率；含程序验算。",
-        type: "计算方法",
+        id: "lecture_ch3",
+        title: "第三讲学习台",
+        desc: "不确定型适用条件与五大准则；含程序验算。",
+        type: "整讲",
         status: "ready",
         methodId: "uncertainty_criteria",
+        bankId: "uncertainty_criteria",
+        casesId: "uncertainty_criteria",
+        outline: ["不确定型适用条件", "乐观/悲观/折中/等概率/后悔值"],
       },
     ],
   },
@@ -120,22 +114,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "utility_system",
-        title: "目标准则体系",
-        desc: "为何多目标；系统性/可比性/可操作性；三种层次结构。",
-        type: "概念",
-        status: "ready",
-        methodId: "utility_system",
-        bankId: "utility_combine",
-        casesId: "utility_combine",
-      },
-      {
-        id: "utility_combine",
-        title: "多维效用并合规则",
-        desc: "去量纲效用；由下而上并合；距离/代换/加/乘/混合规则。",
-        type: "概念",
+        id: "lecture_ch4",
+        title: "第四讲学习台",
+        desc: "目标准则体系与多维效用并合规则。",
+        type: "整讲",
         status: "ready",
         methodId: "utility_combine",
+        bankId: "utility_combine",
+        casesId: "utility_combine",
+        outline: ["目标准则体系", "多维效用并合规则"],
       },
     ],
   },
@@ -145,22 +132,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "dea_motivation",
-        title: "为何需要 DEA",
-        desc: "四引例：从比率比较到量纲不同无法加总。",
-        type: "概念",
-        status: "ready",
-        methodId: "dea_motivation",
-        bankId: "dea",
-        casesId: "dea",
-      },
-      {
-        id: "dea",
-        title: "DMU 与相对有效性",
-        desc: "决策单元、投入产出、相对有效（DEA有效）思想。",
-        type: "计算方法",
+        id: "lecture_ch5",
+        title: "第五讲学习台",
+        desc: "为何需要 DEA；DMU 与相对有效性。",
+        type: "整讲",
         status: "ready",
         methodId: "dea",
+        bankId: "dea",
+        casesId: "dea",
+        outline: ["为何需要 DEA", "DMU 与相对有效性"],
       },
     ],
   },
@@ -170,22 +150,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "gp_deviations",
-        title: "目标规划思想与偏差变量",
-        desc: "逼近期望；正负偏差 d⁻/d⁺；线性范围。",
-        type: "概念",
-        status: "ready",
-        methodId: "gp_deviations",
-        bankId: "goal_programming",
-        casesId: "goal_programming",
-      },
-      {
-        id: "goal_programming",
-        title: "加权与优先目标规划",
-        desc: "权重平衡偏差 vs 优先因子逐级满足。",
-        type: "计算方法",
+        id: "lecture_ch6",
+        title: "第六讲学习台",
+        desc: "目标规划偏差变量；加权与优先目标规划。",
+        type: "整讲",
         status: "ready",
         methodId: "goal_programming",
+        bankId: "goal_programming",
+        casesId: "goal_programming",
+        outline: ["偏差变量", "加权与优先目标规划"],
       },
     ],
   },
@@ -195,22 +168,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "ahp_structure",
-        title: "递阶层次结构",
-        desc: "目标层 / 准则层 / 方案层；为何用 AHP。",
-        type: "概念",
-        status: "ready",
-        methodId: "ahp_structure",
-        bankId: "ahp",
-        casesId: "ahp",
-      },
-      {
-        id: "ahp",
-        title: "判断矩阵与一致性",
-        desc: "1–9 标度、特征向量权重、CI/RI/CR；总排序。",
-        type: "计算方法",
+        id: "lecture_ch7",
+        title: "第七讲学习台",
+        desc: "递阶层次；判断矩阵与一致性检验。",
+        type: "整讲",
         status: "ready",
         methodId: "ahp",
+        bankId: "ahp",
+        casesId: "ahp",
+        outline: ["递阶层次结构", "判断矩阵与一致性"],
       },
     ],
   },
@@ -220,22 +186,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "markov_property",
-        title: "马尔可夫性与马尔可夫链",
-        desc: "无后效性；状态；齐次链（PPT 第2–7页）。",
-        type: "概念",
-        status: "ready",
-        methodId: "markov_property",
-        bankId: "markov",
-        casesId: "markov",
-      },
-      {
-        id: "markov",
-        title: "转移矩阵与分布预测",
-        desc: "P、S^(k)=S^(0)P^k；长期占有率。",
-        type: "计算方法",
+        id: "lecture_ch8",
+        title: "第八讲学习台",
+        desc: "马尔可夫性；转移矩阵与分布预测。",
+        type: "整讲",
         status: "ready",
         methodId: "markov",
+        bankId: "markov",
+        casesId: "markov",
+        outline: ["马尔可夫性与链", "转移矩阵与分布预测"],
       },
     ],
   },
@@ -245,72 +204,21 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "madm_matrix",
-        title: "问题引入与决策矩阵",
-        desc: "学校扩建、研究生院评估等；先写成 Y=(y_ij)。（课堂 PPT）",
-        type: "概念",
-        status: "ready",
-        methodId: "madm_matrix",
-        bankId: "madm",
-        casesId: "madm",
-      },
-      {
-        id: "madm_preprocess",
-        title: "属性预处理",
-        desc: "类型多样、非量纲化、归一化（≠效用）；常用变换。（课堂 PPT）",
-        type: "概念",
-        status: "ready",
-        methodId: "madm_preprocess",
-        bankId: "madm",
-        casesId: "madm",
-      },
-      {
-        id: "madm9_prep",
-        title: "预处理补充与方案初筛",
-        desc: "教材§9.1：六种预处理、选优/满意值/逻辑和法（P193 起）。",
-        type: "概念",
-        status: "ready",
-        methodId: "madm9_prep",
-        bankId: "madm",
-        casesId: "madm",
-      },
-      {
-        id: "madm9_weight",
-        title: "确定权重",
-        desc: "教材§9.2：最小二乘、本征向量、树状/网状递推。",
-        type: "概念",
-        status: "ready",
-        methodId: "madm9_weight",
-        bankId: "madm",
-        casesId: "madm",
-      },
-      {
-        id: "madm",
-        title: "综合排序方法概要",
-        desc: "定权后加权和/加权积/TOPSIS 等主线方法（课堂 PPT + 教材互证）。",
-        type: "计算方法",
+        id: "lecture_ch9",
+        title: "第九讲学习台",
+        desc: "决策矩阵、预处理、定权与综合排序（含 TOPSIS 等）；本讲课件与案例。",
+        type: "整讲",
         status: "ready",
         methodId: "madm",
-      },
-      {
-        id: "madm9_scoring",
-        title: "加权和·加权积·TOPSIS 细读",
-        desc: "教材§9.3–9.5：可补偿性假设与理想解排序细节。",
-        type: "计算方法",
-        status: "ready",
-        methodId: "madm9_scoring",
         bankId: "madm",
         casesId: "madm",
-      },
-      {
-        id: "madm9_outranking",
-        title: "ELECTRE 与 PROMETHEE",
-        desc: "教材§9.7–9.8：级别高于关系与优先函数。",
-        type: "计算方法",
-        status: "ready",
-        methodId: "madm9_outranking",
-        bankId: "madm",
-        casesId: "madm",
+        outline: [
+          "问题引入与决策矩阵",
+          "属性预处理",
+          "确定权重",
+          "加权和·加权积·TOPSIS",
+          "ELECTRE 与 PROMETHEE",
+        ],
       },
     ],
   },
@@ -320,22 +228,15 @@ export const chapters = [
     status: "ready",
     topics: [
       {
-        id: "sim_basics",
-        title: "为何仿真与系统要素",
-        desc: "大纲§10.1–10.2：模型类型、八要素、仿真时钟。",
-        type: "概念",
-        status: "ready",
-        methodId: "sim_basics",
-        bankId: "discrete_sim",
-        casesId: "discrete_sim",
-      },
-      {
-        id: "discrete_sim",
-        title: "九大部件与排队库存",
-        desc: "大纲§10.3–10.5：事件推进；与解析期望值互补。",
-        type: "概念",
+        id: "lecture_ch10",
+        title: "第十讲学习台",
+        desc: "为何仿真、系统要素；九大部件与排队库存。",
+        type: "整讲",
         status: "ready",
         methodId: "discrete_sim",
+        bankId: "discrete_sim",
+        casesId: "discrete_sim",
+        outline: ["为何仿真与系统要素", "九大部件与排队库存"],
       },
     ],
   },
@@ -349,9 +250,16 @@ export function findTopic(topicId) {
   return null;
 }
 
-/** 错题/旧记录可能存的是 bankId、methodId 或细知识点 id，统一解析到可进入的知识点 */
+/** 错题/旧记录可能存细知识点 id、bankId、methodId，统一解析到本讲学习台 */
 export function resolveTopicRef(refId) {
   if (!refId) return null;
+
+  const aliased = TOPIC_ALIASES[refId];
+  if (aliased) {
+    const hit = findTopic(aliased);
+    if (hit) return hit;
+  }
+
   const direct = findTopic(refId);
   if (direct) return direct;
 
@@ -370,4 +278,21 @@ export function readyTopics() {
   return chapters.flatMap((ch) =>
     ch.topics.filter((t) => t.status === "ready").map((t) => ({ ...t, chapterTitle: ch.title }))
   );
+}
+
+/** 目录用：一讲一行（每讲唯一学习台） */
+export function lectureEntriesFromCatalog() {
+  return chapters
+    .filter((ch) => ch.status === "ready" && ch.topics.some((t) => t.status === "ready"))
+    .map((ch) => {
+      const topic = ch.topics.find((t) => t.status === "ready");
+      return {
+        chapterId: ch.id,
+        chapterTitle: ch.title,
+        topicId: topic.id,
+        title: topic.title,
+        desc: topic.desc,
+        outline: topic.outline || [],
+      };
+    });
 }
