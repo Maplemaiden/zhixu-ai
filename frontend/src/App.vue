@@ -40,24 +40,196 @@ const classroomChapterId = ref("ch2");
 const classroomReturn = ref("catalog");
 /** 桌面侧栏 / 目录页：讲次展开状态 */
 const outlineOpen = ref(Object.fromEntries(chapters.map((ch) => [ch.id, false])));
-const SIDEBAR_KEY = "zhixu_sidebar_collapsed";
-const sidebarCollapsed = ref(
-  (() => {
-    try {
-      return localStorage.getItem(SIDEBAR_KEY) === "1";
-    } catch {
-      return false;
-    }
-  })()
-);
+/** 桌面侧栏：默认 76px 图标条，靠过去**撑开**到 272px（挤压正文，不覆盖）。
+ *
+ * 为什么是撑开而不是覆盖：覆盖必然吃掉被盖住内容的点击，三轮尝试（sticky 挤压 /
+ * pointer-events 透传 / 坐标判定）都在这上面翻车。撑开后侧栏与正文互不重叠，
+ * 点击 / 拖选 / 滚轮全部恢复正常，没有任何例外。
+ *
+ * 重排代价用三招压住：
+ *   1) 停留 140ms 才展开 —— 随手划过左边缘不触发
+ *   2) ≥1360 时给 .lesson-card 限宽 724px —— 展开前后正文宽度不变，不断行
+ *   3) <1360 只允许点击图标条展开（用户主动行为，对变化有预期）
+ */
+const SIDEBAR_RAIL_PX = 76;
+const SIDEBAR_PANEL_PX = 272;
+const SIDEBAR_LEAVE_MS = 180;
+/** 悬停进入图标条后要停留这么久才展开，避免误触 */
+const SIDEBAR_OPEN_DELAY_MS = 140;
+/** 低于此宽度不做悬停展开，只能点击图标条展开 */
+const SIDEBAR_HOVER_MIN_WIDTH = 1360;
+/** 展开态下的「安全区」：指针离开面板但还在这段距离内时不收起。
+ *  否则用户移向正文按钮的过程中侧栏收起、正文左移，点击会落到别的元素上（实测点
+ *  「开始学习」实际点到了「继续学习」）。 */
+const SIDEBAR_SAFE_ZONE_PX = 520;
 
-function toggleSidebar() {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-  try {
-    localStorage.setItem(SIDEBAR_KEY, sidebarCollapsed.value ? "1" : "0");
-  } catch {
-    /* ignore */
+const sidebarHover = ref(false);
+const sidebarPinnedOpen = ref(false); // 键盘聚焦 / 点击图标条时保持展开
+let sidebarLeaveTimer = 0;
+let sidebarOpenTimer = 0;
+let sidebarCooldownUntil = 0;
+const SIDEBAR_COOLDOWN_MS = 260;
+const sidebarDismissed = ref(false);
+
+const sidebarExpanded = computed(() => sidebarHover.value || sidebarPinnedOpen.value);
+
+function clearSidebarTimer() {
+  if (sidebarLeaveTimer) {
+    clearTimeout(sidebarLeaveTimer);
+    sidebarLeaveTimer = 0;
   }
+}
+
+function clearSidebarOpenTimer() {
+  if (sidebarOpenTimer) {
+    clearTimeout(sidebarOpenTimer);
+    sidebarOpenTimer = 0;
+  }
+}
+
+/** 指针横坐标是否落在图标条内（触发区永远是 76px，与是否展开无关） */
+function pointerInRail(clientX) {
+  return typeof clientX === "number" && !Number.isNaN(clientX) && clientX >= 0 && clientX <= SIDEBAR_RAIL_PX;
+}
+
+/** 指针横坐标是否还在展开后的面板范围内 */
+function pointerInPanel(clientX) {
+  return typeof clientX === "number" && !Number.isNaN(clientX) && clientX >= 0 && clientX <= SIDEBAR_PANEL_PX;
+}
+
+function openSidebar() {
+  if (sidebarDismissed.value) return;
+  if (Date.now() < sidebarCooldownUntil) return;
+  clearSidebarTimer();
+  sidebarHover.value = true;
+}
+
+/** 鼠标移动：进图标条→停留 140ms 后展开；离开面板→180ms 后收起 */
+function onDocMouseMove(e) {
+  if (e.pointerType === "touch") return;
+  const x = e.clientX;
+
+  if (sidebarExpanded.value) {
+    if (pointerInPanel(x)) {
+      clearSidebarTimer();
+      return;
+    }
+    // 离开面板，但还在正文近侧安全区：先别收，避免内容在光标下左移造成误点。
+    if (x <= SIDEBAR_SAFE_ZONE_PX) {
+      clearSidebarTimer();
+      return;
+    }
+    // 真正走远了
+    sidebarDismissed.value = false;
+    if (sidebarLeaveTimer) return;
+    sidebarLeaveTimer = setTimeout(() => {
+      sidebarLeaveTimer = 0;
+      if (sidebarPinnedOpen.value) return;
+      sidebarHover.value = false;
+    }, SIDEBAR_LEAVE_MS);
+    return;
+  }
+
+  // 未展开：只在图标条内、且视口足够宽时，停留 140ms 才展开
+  if (pointerInRail(x)) {
+    sidebarDismissed.value = false;
+    if (sidebarOpenTimer) return;
+    if (window.innerWidth < SIDEBAR_HOVER_MIN_WIDTH) return; // 窄屏只能点击展开
+    if (Date.now() < sidebarCooldownUntil) return;
+    sidebarOpenTimer = setTimeout(() => {
+      sidebarOpenTimer = 0;
+      openSidebar();
+    }, SIDEBAR_OPEN_DELAY_MS);
+    return;
+  }
+
+  // 在图标条之外：撤销待展开计时
+  clearSidebarOpenTimer();
+}
+
+function collapseSidebar(explicit = true) {
+  clearSidebarTimer();
+  clearSidebarOpenTimer();
+  sidebarHover.value = false;
+  sidebarPinnedOpen.value = false;
+  sidebarCooldownUntil = Date.now() + SIDEBAR_COOLDOWN_MS;
+  if (explicit) sidebarDismissed.value = true;
+}
+
+/** 点击图标条：切换展开（全宽度可用，含窄屏） */
+function toggleSidebarByClick() {
+  if (sidebarExpanded.value) {
+    collapseSidebar();
+  } else {
+    clearSidebarTimer();
+    sidebarDismissed.value = false;
+    sidebarPinnedOpen.value = true;
+  }
+}
+
+function onSidebarFocusIn(e) {
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  try {
+    if (t === e.currentTarget || t.matches(":focus-visible")) {
+      clearSidebarTimer();
+      sidebarPinnedOpen.value = true;
+    }
+  } catch {
+    sidebarPinnedOpen.value = true;
+  }
+}
+
+function onSidebarFocusOut(e) {
+  const next = e.relatedTarget;
+  const cur = e.currentTarget;
+  if (!(next instanceof Node)) return;
+  if (cur instanceof Node && cur.contains(next)) return;
+  clearSidebarTimer();
+  sidebarLeaveTimer = setTimeout(() => {
+    sidebarLeaveTimer = 0;
+    sidebarPinnedOpen.value = false;
+  }, SIDEBAR_LEAVE_MS);
+}
+
+/** 记录按下位置，用来区分「点击」与「拖拽」 */
+let sidebarPressAt = null;
+
+function onSidebarPointerDown(e) {
+  sidebarPressAt = { x: e.clientX, y: e.clientY };
+}
+
+/** 点侧栏内空白（非按钮/链接）→ 收起。拖拽结束不触发。 */
+function onSidebarClick(e) {
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  if (t.closest("button, a, .nav-item, .user-mini")) return;
+  // 拖拽（位移 > 4px）不算点击，避免划选文字时把侧栏关掉
+  if (sidebarPressAt) {
+    const dx = Math.abs(e.clientX - sidebarPressAt.x);
+    const dy = Math.abs(e.clientY - sidebarPressAt.y);
+    sidebarPressAt = null;
+    if (dx > 4 || dy > 4) return;
+  }
+  if (!sidebarExpanded.value) {
+    // 收起态点图标条空白 = 想展开，不是想收起
+    toggleSidebarByClick();
+    return;
+  }
+  collapseSidebar();
+}
+
+/** 点侧栏之外 → 收起（收起态不动作，避免误置 dismissed） */
+function onDocPointerDown(e) {
+  if (!sidebarExpanded.value) return;
+  if (pointerInPanel(e.clientX)) return;
+  collapseSidebar(false);
+}
+
+/** Esc 收起 */
+function onDocKeydown(e) {
+  if (e.key !== "Escape") return;
+  if (sidebarExpanded.value) collapseSidebar();
 }
 
 const health = ref(null);
@@ -220,6 +392,12 @@ const quizIndex = ref(0);
 const quizChoice = ref(null);
 const quizChecked = ref(false);
 const quizFeedback = ref(null);
+/** 未选选项时的提示 */
+const quizHint = ref("");
+/** 本讲练习是否已做完 */
+const quizDone = ref(false);
+/** 判分请求进行中，防双击重复入库 */
+const quizSubmitting = ref(false);
 const lessonReading = ref([]);
 const lessonReadingSource = ref("");
 const stepCard = ref(null);
@@ -235,12 +413,36 @@ const classroomSpeaking = ref(false);
 const classroomLine = ref("");
 
 const lessonParts = ["讲解", "做题答疑"];
-function persistLesson(topicId, sec = section.value) {
+function persistLesson(topicId, sec = section.value, extra = {}) {
   saveProgress(topicId, {
     section: sec,
     lessonMode: sec === 1 ? "practice" : "teach",
     caseIndex: caseIndex.value,
+    ...extra,
   });
+}
+
+/** 一讲的真实进度：看过讲解 30%，做题按答题数递增，答满 100%。
+    旧实现只看 section，打开讲解就 50%、切到做题就 100%，是误判。 */
+/** 本讲是否真的学完（答满题库），而不是「打开过」 */
+function isLectureDone(topicId) {
+  const p = store.progress[topicId];
+  if (!p) return false;
+  const answered = Number(p.answered) || 0;
+  const total = Math.max(1, Number(p.quizTotal) || 0);
+  return answered > 0 && answered >= total;
+}
+
+function lectureProgress(topicId) {
+  const p = store.progress[topicId];
+  if (!p) return 0;
+  const answered = Math.max(0, Number(p.answered) || 0);
+  const total = Math.max(1, Number(p.quizTotal) || (choiceQuizzes.value.length || 8));
+  // 单调递增：看过讲解 10%，进做题未答 15%，之后按答题数累加到 100。
+  // 旧实现 0 题返回 40、答 1 题变 39，出现「越学越少」的回退。
+  const base = p.section >= 1 ? 15 : 10;
+  if (answered <= 0) return base;
+  return Math.min(100, Math.round(base + (answered / total) * (100 - base)));
 }
 const { speaking, paused, currentLine, supported, stop, pause, resume, speakLines, speakText } = useSpeech();
 
@@ -361,6 +563,11 @@ const homeContinue = computed(() => {
     continueFrom: chapterTitle || title,
   };
 });
+
+/** 首页只有一段欢迎语，播放器的上一段/下一段给出明确反馈 */
+function homeSpeakHint() {
+  speakText(`欢迎回来。今天我们学${homeContinue.value.title}。`);
+}
 
 function toggleOutline(chapterId) {
   outlineOpen.value = {
@@ -582,11 +789,39 @@ function setupHeroObserver() {
   heroObserver.observe(heroArtEl.value);
 }
 
-const spiritFloatVisible = computed(
-  () =>
-    view.value !== "qa" &&
-    !(view.value === "home" && heroZhizhiInView.value)
+const FLOAT_KEY = "zhixu_spirit_float_enabled";
+/** 学习台：允许在右栏大数字人里关掉右下角浮层，避免两个形象同屏 */
+const floatSpiritEnabled = ref(
+  (() => {
+    try {
+      return localStorage.getItem(FLOAT_KEY) !== "0";
+    } catch {
+      return true;
+    }
+  })()
 );
+
+function toggleFloatSpirit() {
+  floatSpiritEnabled.value = !floatSpiritEnabled.value;
+  try {
+    localStorage.setItem(FLOAT_KEY, floatSpiritEnabled.value ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
+}
+
+const spiritFloatVisible = computed(() => {
+  if (!floatSpiritEnabled.value) return false;
+  // 全屏页没有浮层
+  if (view.value === "qa") return false;
+  // 目录是索引页：浮层会压住卡片右下角主按钮，且此页无需就地提问
+  if (view.value === "catalog") return false;
+  // 课件页自带「提问本页」输入框与快捷追问，浮层会盖住右侧缩略图条
+  if (view.value === "classroom") return false;
+  // 首页大知知还在视口时不重复出现
+  if (view.value === "home" && heroZhizhiInView.value) return false;
+  return true;
+});
 
 function onClassroomSpeech({ speaking: sp, line } = {}) {
   classroomSpeaking.value = !!sp;
@@ -604,6 +839,9 @@ function stopSpiritExternal() {
 }
 
 onMounted(async () => {
+  document.addEventListener("pointerdown", onDocPointerDown, true);
+  document.addEventListener("keydown", onDocKeydown);
+  document.addEventListener("mousemove", onDocMouseMove, { passive: true });
   await bootstrap();
   try {
     health.value = await api.health();
@@ -621,6 +859,10 @@ onMounted(async () => {
   }
 });
 onUnmounted(() => {
+  document.removeEventListener("pointerdown", onDocPointerDown, true);
+  document.removeEventListener("keydown", onDocKeydown);
+  document.removeEventListener("mousemove", onDocMouseMove);
+  clearSidebarTimer();
   teardownHeroObserver();
   stop();
 });
@@ -772,7 +1014,11 @@ function openTopic(id, opts = {}) {
   store.lastTopicId = topicId;
   if (opts.ask) pendingSection.value = 1;
   else if (opts.section != null) pendingSection.value = opts.section >= 1 ? 1 : 0;
-  else pendingSection.value = 0;
+  else if (opts.resume) {
+    // 「继续学习」：按上次停留的环节恢复，而不是一律回讲解
+    const prev = store.progress[topicId];
+    pendingSection.value = prev && prev.section >= 1 ? 1 : 0;
+  } else pendingSection.value = 0;
   askOpen.value = !!opts.ask;
   if (opts.question) question.value = opts.question;
   activeTopicId.value = topicId;
@@ -805,7 +1051,15 @@ function openAsk(preset) {
     if (section.value !== 1) gotoSection(1, { speak: false });
     askOpen.value = true;
   }
-  if (preset) nextTick(() => useAskSuggestion(preset));
+  // P2：点了「课中追问」要把提问框带到眼前并聚焦，否则用户以为没反应
+  nextTick(() => {
+    if (preset) useAskSuggestion(preset);
+    const el = askInputEl.value;
+    if (el) {
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      el.focus({ preventScroll: true });
+    }
+  });
 }
 function gotoSection(i, { speak = true } = {}) {
   section.value = Math.max(0, Math.min(1, i));
@@ -955,10 +1209,28 @@ const currentQuiz = computed(() => {
 async function submitQuiz() {
   const item = currentQuiz.value;
   if (!item || item.type !== "choice") return;
-  if (quizChoice.value == null) return;
-  const fb = await api.grade({ question_id: item.id, choice: quizChoice.value });
+  if (quizChoice.value == null) {
+    quizHint.value = "请先选择一个选项";
+    return;
+  }
+  // P1：防双击 —— 已有请求在飞或已判过，直接返回
+  if (quizSubmitting.value || quizChecked.value) return;
+  quizSubmitting.value = true;
+  quizHint.value = "";
+  let fb;
+  try {
+    fb = await api.grade({ question_id: item.id, choice: quizChoice.value });
+  } finally {
+    quizSubmitting.value = false;
+  }
   quizFeedback.value = fb;
   quizChecked.value = true;
+  // 记录本讲已答题数，供目录进度条使用
+  const prev = store.progress[activeTopicId.value] || {};
+  persistLesson(activeTopicId.value, section.value, {
+    answered: (Number(prev.answered) || 0) + 1,
+    quizTotal: choiceQuizzes.value.length || Number(prev.quizTotal) || 8,
+  });
   if (!fb.correct) {
     addWrong({
       topic: activeTopicId.value,
@@ -982,15 +1254,34 @@ async function submitQuiz() {
 }
 
 function resetQuiz() {
+  quizHint.value = "";
   quizChoice.value = null;
   quizChecked.value = false;
   quizFeedback.value = null;
 }
 
+let nextQuizLock = 0;
 function nextQuiz() {
   const n = choiceQuizzes.value.length;
   if (!n) return;
-  quizIndex.value = (quizIndex.value + 1) % n;
+  // 防抖：同 tick / 快速连点只前进一题
+  const now = Date.now();
+  if (now - nextQuizLock < 300) return;
+  nextQuizLock = now;
+  if (quizIndex.value >= n - 1) {
+    quizDone.value = true;
+    return;
+  }
+  quizIndex.value += 1;
+  quizHint.value = "";
+  resetQuiz();
+}
+
+/** 从完成态重新开始本讲练习 */
+function restartQuiz() {
+  quizDone.value = false;
+  quizIndex.value = 0;
+  quizHint.value = "";
   resetQuiz();
 }
 
@@ -1071,30 +1362,28 @@ function runCoach(run) {
     @open-topic="(id) => openTopic(id)"
     @speech="onClassroomSpeech"
   />
-  <div v-else class="shell">
-    <aside class="sidebar desktop-only" :class="{ collapsed: sidebarCollapsed }">
+  <div v-else class="shell" :class="{ 'sidebar-open': sidebarExpanded }">
+    <aside
+      class="sidebar desktop-only"
+      :class="{ expanded: sidebarExpanded }"
+      @focusin="onSidebarFocusIn"
+      @focusout="onSidebarFocusOut"
+      @pointerdown="onSidebarPointerDown"
+      @click="onSidebarClick"
+    >
       <div class="brand">
         <div class="brand-mark">知</div>
         <div class="brand-copy">
           <div class="brand-text">{{ course.assistant }}</div>
           <div class="brand-sub">决策理论与方法</div>
         </div>
-        <button
-          class="sidebar-toggle"
-          type="button"
-          :title="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
-          :aria-label="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
-          :aria-expanded="!sidebarCollapsed"
-          @click="toggleSidebar"
-        >
-          {{ sidebarCollapsed ? "›" : "‹" }}
-        </button>
       </div>
       <button
         class="nav-item"
         :class="{ active: view === 'home' }"
         type="button"
         title="首页"
+        aria-label="首页"
         @click="go('home')"
       >
         <span class="nav-short">首</span>
@@ -1105,6 +1394,7 @@ function runCoach(run) {
         :class="{ active: view === 'catalog' || (view === 'lesson' && !askOpen) }"
         type="button"
         title="课程学习"
+        aria-label="课程学习"
         @click="go('catalog')"
       >
         <span class="nav-short">课</span>
@@ -1115,6 +1405,7 @@ function runCoach(run) {
         :class="{ active: view === 'qa' }"
         type="button"
         title="答疑空间"
+        aria-label="答疑空间"
         @click="openQaSpace()"
       >
         <span class="nav-short">问</span>
@@ -1126,6 +1417,7 @@ function runCoach(run) {
         :class="{ active: askOpen }"
         type="button"
         title="课中追问"
+        aria-label="课中追问"
         @click="openAsk()"
       >
         <span class="nav-short">追</span>
@@ -1136,6 +1428,7 @@ function runCoach(run) {
         :class="{ active: view === 'review' }"
         type="button"
         title="复习与记录"
+        aria-label="复习与记录"
         @click="go('review')"
       >
         <span class="nav-short">记</span>
@@ -1202,7 +1495,11 @@ function runCoach(run) {
                 <div class="hero-buttons">
                   <button class="btn" type="button" @click="go('catalog')">开始学习</button>
                   <div class="hero-continue">
-                    <button class="btn btn-primary" type="button" @click="openTopic(homeContinue.topicId)">
+                    <button
+                      class="btn btn-primary"
+                      type="button"
+                      @click="openTopic(homeContinue.topicId, { resume: true })"
+                    >
                       继续学习 →
                     </button>
                     <span class="hero-continue-from">从「{{ homeContinue.continueFrom }}」继续</span>
@@ -1221,8 +1518,8 @@ function runCoach(run) {
                   @pause="onPause"
                   @resume="onResume"
                   @stop="stop"
-                  @prev="() => {}"
-                  @next="() => {}"
+                  @prev="homeSpeakHint"
+                  @next="homeSpeakHint"
                 />
               </div>
             </section>
@@ -1282,11 +1579,16 @@ function runCoach(run) {
             </div>
           </div>
 
-          <div class="topic-grid lecture-desk-grid">
+          <div v-if="!catalogLectures.length" class="card empty-search">
+            <p>没有匹配「{{ search }}」的讲次。</p>
+            <button class="btn btn-small" type="button" @click="search = ''">清空搜索</button>
+          </div>
+          <div v-else class="topic-grid lecture-desk-grid">
             <article v-for="lec in catalogLectures" :key="lec.topicId" class="card topic-card">
               <div class="topic-card-top">
                 <span class="pill">整讲</span>
-                <span class="tiny" v-if="store.progress[lec.topicId]">已学过</span>
+                <span class="tiny" v-if="isLectureDone(lec.topicId)">已学完</span>
+                <span class="tiny" v-else-if="store.progress[lec.topicId]">学习中</span>
               </div>
               <div class="tiny" style="margin-top: 10px">{{ lec.chapterTitle }}</div>
               <h3>{{ lec.title }}</h3>
@@ -1295,10 +1597,7 @@ function runCoach(run) {
                 <li v-for="(item, i) in lec.outline" :key="i">{{ item }}</li>
               </ul>
               <div class="progress-track" v-if="store.progress[lec.topicId]">
-                <div
-                  class="progress-fill"
-                  :style="{ width: Math.min(100, ((store.progress[lec.topicId].section || 0) + 1) * 50) + '%' }"
-                />
+                <div class="progress-fill" :style="{ width: lectureProgress(lec.topicId) + '%' }" />
               </div>
               <div class="topic-card-footer">
                 <button
@@ -1310,7 +1609,7 @@ function runCoach(run) {
                   课件
                 </button>
                 <button class="btn btn-primary btn-small" type="button" @click="openTopic(lec.topicId)">
-                  {{ store.progress[lec.topicId] ? "继续本讲" : "进入学习台" }}
+                  {{ isLectureDone(lec.topicId) ? "再学一遍" : store.progress[lec.topicId] ? "继续本讲" : "进入学习台" }}
                 </button>
               </div>
             </article>
@@ -1433,11 +1732,12 @@ function runCoach(run) {
                   <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap">
                     <button
                       v-if="isWalkthroughCase"
-                      class="btn btn-primary"
+                      class="btn"
+                      :class="{ 'btn-primary': !caseBrief }"
                       type="button"
-                      @click="runCaseWalkthrough"
+                      @click="caseBrief ? (caseBrief = null) : runCaseWalkthrough()"
                     >
-                      展开案例
+                      {{ caseBrief ? "收起案例" : "展开案例" }}
                     </button>
                     <button
                       v-else
@@ -1464,13 +1764,6 @@ function runCoach(run) {
                     />
                   </div>
                 </template>
-
-                <div class="exit-teach">
-                  <button class="btn" type="button" @click="playSection">听本讲口播</button>
-                  <button class="btn btn-primary" type="button" @click="gotoSection(1)">
-                    结束讲解，去做小测答疑
-                  </button>
-                </div>
               </div>
 
               <!-- 做题答疑：小测 + 追问 -->
@@ -1481,7 +1774,15 @@ function runCoach(run) {
                 <p class="tiny" v-if="choiceQuizzes.length">
                   {{ (quizIndex % choiceQuizzes.length) + 1 }} / {{ choiceQuizzes.length }}
                 </p>
-                <div class="quiz" v-if="currentQuiz?.type === 'choice'">
+                <div v-if="quizDone" class="quiz quiz-done">
+                  <h3 style="font-size: 15px">本讲练习已完成</h3>
+                  <p class="tiny">共 {{ choiceQuizzes.length }} 题。可以重做一遍，或回到讲解继续看。</p>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px">
+                    <button class="btn btn-primary" type="button" @click="restartQuiz">再做一遍</button>
+                    <button class="btn" type="button" @click="gotoSection(0, { speak: false })">返回讲解</button>
+                  </div>
+                </div>
+                <div class="quiz" v-else-if="currentQuiz?.type === 'choice'">
                   <h3 style="font-size: 15px; line-height: 1.8">{{ currentQuiz.question }}</h3>
                   <label
                     v-for="(text, key) in currentQuiz.options"
@@ -1500,18 +1801,24 @@ function runCoach(run) {
                     <b>{{ quizFeedback?.correct ? "回答正确" : "本题需要再巩固" }}</b><br />
                     {{ quizFeedback?.reason }}
                   </div>
+                  <p v-if="quizHint" class="quiz-hint">{{ quizHint }}</p>
                   <div v-if="!quizChecked" style="display: flex; gap: 8px; flex-wrap: wrap">
-                    <button class="btn btn-primary" type="button" @click="submitQuiz">提交答案</button>
+                    <button
+                      class="btn btn-primary"
+                      type="button"
+                      :disabled="quizSubmitting"
+                      @click="submitQuiz"
+                    >
+                      {{ quizSubmitting ? "判分中…" : "提交答案" }}
+                    </button>
                     <button class="btn" type="button" @click="openAsk(sectionAskPreset())">先追问再作答</button>
                   </div>
                   <div v-else style="display: flex; gap: 8px; flex-wrap: wrap">
-                    <button v-if="!quizFeedback?.correct" class="btn btn-primary" type="button" @click="reteachWrong">
-                      返回讲解重听
-                    </button>
+                    <!-- 「返回讲解重听」由底部 coach-bar 提供，此处不再重复 -->
                     <button class="btn" type="button" @click="resetQuiz">重做本题</button>
                     <button
                       v-if="choiceQuizzes.length > 1"
-                      class="btn btn-soft"
+                      class="btn btn-primary"
                       type="button"
                       @click="nextQuiz"
                     >
@@ -1559,9 +1866,6 @@ function runCoach(run) {
                       @keydown.enter.exact.prevent="doAsk"
                     />
                     <div class="composer-footer">
-                      <button class="btn btn-small" type="button" @click="gotoSection(0, { speak: false })">
-                        返回讲解
-                      </button>
                       <button
                         class="btn btn-primary btn-small"
                         type="button"
@@ -1615,7 +1919,29 @@ function runCoach(run) {
               @stop="stop"
               @prev="prevSection"
               @next="nextSection"
-            />
+            >
+              <template #extra>
+                <div class="float-switch">
+                  <div class="float-switch-head">
+                    <span class="float-switch-label">页面浮层知知</span>
+                    <button
+                      class="switch"
+                      :class="{ on: floatSpiritEnabled }"
+                      type="button"
+                      role="switch"
+                      :aria-checked="floatSpiritEnabled"
+                      aria-label="页面浮层知知"
+                      @click="toggleFloatSpirit"
+                    >
+                      <span class="switch-knob" />
+                    </button>
+                  </div>
+                  <p class="float-switch-hint">
+                    {{ floatSpiritEnabled ? "右下角已显示，可关掉避免两个形象同屏" : "已隐藏，只保留这一处形象" }}
+                  </p>
+                </div>
+              </template>
+            </AvatarPanel>
           </div>
         </template>
 
@@ -1624,14 +1950,35 @@ function runCoach(run) {
           <h1 class="h1">复习与记录</h1>
           <div class="review-grid">
             <div class="card review-main">
-              <div class="tabs">
-                <button class="tab" :class="{ active: reviewTab === 'summary' }" type="button" @click="reviewTab = 'summary'">
+              <div class="tabs" role="tablist" aria-label="复习与记录">
+                <button
+                  class="tab"
+                  :class="{ active: reviewTab === 'summary' }"
+                  type="button"
+                  role="tab"
+                  :aria-selected="reviewTab === 'summary'"
+                  @click="reviewTab = 'summary'"
+                >
                   知识点速览
                 </button>
-                <button class="tab" :class="{ active: reviewTab === 'wrong' }" type="button" @click="reviewTab = 'wrong'">
+                <button
+                  class="tab"
+                  :class="{ active: reviewTab === 'wrong' }"
+                  type="button"
+                  role="tab"
+                  :aria-selected="reviewTab === 'wrong'"
+                  @click="reviewTab = 'wrong'"
+                >
                   历史错题 ({{ store.wrong.length }})
                 </button>
-                <button class="tab" :class="{ active: reviewTab === 'notes' }" type="button" @click="reviewTab = 'notes'; refreshAllNotes()">
+                <button
+                  class="tab"
+                  :class="{ active: reviewTab === 'notes' }"
+                  type="button"
+                  role="tab"
+                  :aria-selected="reviewTab === 'notes'"
+                  @click="reviewTab = 'notes'; refreshAllNotes()"
+                >
                   我的标注 ({{ noteCount }})
                 </button>
               </div>
@@ -1724,7 +2071,6 @@ function runCoach(run) {
     :external-speaking="view === 'classroom' ? classroomSpeaking : speaking"
     :external-paused="view === 'classroom' ? false : paused"
     :external-line="view === 'classroom' ? classroomLine : currentLine"
-    :default-expanded="view === 'classroom'"
     :bottom-pad="72"
     @open-qa="openQaSpace"
     @open-topic="(id) => openTopic(id)"
@@ -1737,25 +2083,46 @@ function runCoach(run) {
 .shell {
   display: flex;
   min-height: 100vh;
+  padding-left: 76px;
+  /* A+：撑开式 —— 侧栏展开时挤压正文，而非覆盖，从根本上避免点击被吞 */
+  transition: padding-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.shell.sidebar-open {
+  padding-left: 272px;
 }
 .sidebar {
-  width: 272px;
+  width: 76px;
   background: #18263f;
   color: #dbdeef;
-  min-height: 100vh;
-  position: sticky;
+  position: fixed;
+  left: 0;
   top: 0;
   height: 100vh;
-  padding: 24px 14px 16px;
+  z-index: 60;
+  padding: 20px 10px 14px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
-  transition: width 0.2s ease;
+  box-shadow: none;
+  transition:
+    width 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    padding 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s ease;
 }
-.sidebar.collapsed {
-  width: 76px;
-  padding: 20px 10px 14px;
+.sidebar.expanded {
+  width: 272px;
+  padding: 24px 14px 16px;
+  box-shadow: 20px 0 50px rgba(12, 20, 40, 0.2);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.sidebar.expanded::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar.expanded::-webkit-scrollbar-thumb {
+  background: #40516a;
+  border-radius: 99px;
 }
 .brand {
   display: flex;
@@ -1765,10 +2132,17 @@ function runCoach(run) {
   color: #fff;
   position: relative;
 }
-.sidebar.collapsed .brand {
+.sidebar .brand {
   flex-direction: column;
+  align-items: center;
   gap: 10px;
   padding: 2px 0 14px;
+}
+.sidebar.expanded .brand {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 4px 18px 10px;
 }
 .brand-mark {
   width: 38px;
@@ -1782,11 +2156,13 @@ function runCoach(run) {
   flex-shrink: 0;
 }
 .brand-copy {
+  display: none;
   min-width: 0;
   flex: 1;
+  overflow: hidden;
 }
-.sidebar.collapsed .brand-copy {
-  display: none;
+.sidebar.expanded .brand-copy {
+  display: block;
 }
 .brand-text {
   font-weight: 850;
@@ -1796,24 +2172,6 @@ function runCoach(run) {
   color: #92a7b2;
   font-size: 10px;
   letter-spacing: 0.12em;
-}
-.sidebar-toggle {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #40516a;
-  border-radius: 8px;
-  background: #24364f;
-  color: #cfeee3;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-}
-.sidebar-toggle:hover {
-  background: #304560;
-  color: #fff;
 }
 .nav-caption {
   font-size: 11px;
@@ -1844,15 +2202,27 @@ function runCoach(run) {
 .nav-label {
   min-width: 0;
 }
-.sidebar.collapsed .nav-item {
+.sidebar .nav-item {
   padding: 12px 0;
   justify-content: center;
+  gap: 0;
 }
-.sidebar.collapsed .nav-short {
+.sidebar.expanded .nav-item {
+  padding: 11px 14px;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.nav-short {
   display: block;
 }
-.sidebar.collapsed .nav-label {
+.sidebar.expanded .nav-short {
   display: none;
+}
+.nav-label {
+  display: none;
+}
+.sidebar.expanded .nav-label {
+  display: block;
 }
 .nav-item:hover {
   background: #304560;
@@ -1880,14 +2250,104 @@ function runCoach(run) {
   padding-top: 12px;
   border-top: 1px solid #40516a;
 }
-.sidebar.collapsed .sidebar-bottom {
+.sidebar .sidebar-bottom {
   padding-top: 10px;
 }
-.sidebar.collapsed .user-meta {
+.user-meta {
   display: none;
 }
-.sidebar.collapsed .user-mini {
+.sidebar.expanded .user-meta {
+  display: block;
+}
+.user-mini {
   justify-content: center;
+}
+.sidebar.expanded .user-mini {
+  justify-content: flex-start;
+}
+/* —— G：键盘可达性与过渡（桌面端） —— */
+/* F1：侧栏展开是 width 补间，display 却是瞬切。
+   不给 nowrap 的话，第一帧宽度还是 76px，文字会逐字换行把品牌块撑到 190px。 */
+.sidebar .brand-text,
+.sidebar .brand-sub,
+.sidebar .nav-label {
+  white-space: nowrap;
+}
+.sidebar .nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar .brand-sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar .brand-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 做题选项补 hover（原先 cursor:pointer 但零反馈） */
+.option:hover:not(.selected):not(.correct):not(.incorrect) {
+  border-color: #c8cbe0;
+  background: #fafbff;
+}
+.option {
+  cursor: pointer;
+}
+/* P1：主要可点元素补 hover 反馈（原先 .btn 一条 :hover 都没有） */
+.btn:hover:not(:disabled) {
+  background: #f7f7fb;
+  border-color: #d5d8e6;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #574be0;
+  border-color: #574be0;
+}
+.btn-soft:hover:not(:disabled) {
+  /* 原 #e7e1ff 会把前景 #6658df 的对比度从 4.54 压到 4.13；改浅底保持 >=4.5 */
+  background: #f4efff;
+  border-color: #d8cffd;
+}
+.btn-small:hover:not(:disabled) {
+  transform: none;
+}
+.tab:hover:not(.active) {
+  background: #f2f3f9;
+  color: #4b5470;
+}
+.step-dot:hover:not(.active) {
+  border-color: #c8cbe0;
+  color: #4b5470;
+}
+.player-btn:hover:not(:disabled) {
+  background: #f0edff;
+  border-color: #d8cffd;
+}
+
+/* 只保留模板中真实存在的选择器；时长统一 0.16s */
+.btn,
+.nav-item,
+.topic-card,
+.tab,
+.chip,
+.switch,
+.step-dot,
+.player-btn,
+.option {
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+}
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.sidebar :focus-visible {
+  outline-color: #cfeee3;
 }
 .boot-screen {
   min-height: 100vh;
@@ -2093,6 +2553,17 @@ function runCoach(run) {
   display: flex;
   flex-direction: column;
 }
+@media (max-height: 620px) {
+  /* 矮窗口：让首页整体可滚，而不是裁掉内容 */
+  .content.home-mode {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .home-screen {
+    min-height: 0;
+  }
+}
 .content.qa-mode {
   height: calc(100dvh - 52px);
   max-height: calc(100dvh - 52px);
@@ -2109,7 +2580,9 @@ function runCoach(run) {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  overflow: hidden;
+  /* 矮窗口下允许滚动，否则问答区 chips 会被裁到视口外且滚轮无效 */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .home-screen .hero {
   flex: 0 0 auto;
@@ -2611,6 +3084,11 @@ function runCoach(run) {
   width: 100%;
   background: transparent;
 }
+/* P1：input 自带的 outline:0 会盖掉全局 :focus-visible，改在容器上给焦点环 */
+.search:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(102, 88, 223, 0.18);
+}
 .catalog-layout {
   display: grid;
   grid-template-columns: 270px minmax(0, 1fr);
@@ -2776,7 +3254,8 @@ function runCoach(run) {
   place-items: center;
   background: #fff;
   border: 1px solid #e6e7f2;
-  color: #9095a8;
+  /* 原 #9095a8 在白底仅 2.98:1 → #5f6781 提到 5.15:1 */
+  color: #5f6781;
   font-size: 12px;
   font-weight: 800;
 }
@@ -2809,6 +3288,21 @@ function runCoach(run) {
 .lesson-card {
   padding: 27px;
   min-height: 540px;
+  /* P0：KaTeX 的 .katex-display 是 white-space:nowrap，
+     会把 lesson-card 的 max-content 撑到 750px，手机端整页塌陷。
+     加 min-width:0 让 grid/flex 能收缩，并允许公式块横向滚动而非撑宽父级。 */
+  min-width: 0;
+  max-width: 100%;
+}
+/* 学习台正文：卡片填满网格列（不再锁 724px —— 那会在卡片和右栏数字人之间
+   留出 216~362px 的空带）。超宽屏用 900px 上限防止单行过长；
+   1440 及以下正文 866px，不会触发该上限。 */
+@media (min-width: 1360px) {
+  /* 只保留模板中真实存在的容器；.lesson-top / .step-list 在新版 DOM 里已不存在 */
+  .lesson-body,
+  .coach-bar {
+    max-width: 900px;
+  }
 }
 .lesson-top {
   display: flex;
@@ -3147,6 +3641,21 @@ function runCoach(run) {
   background: #f6f4ff;
   color: #4f46a8;
 }
+.msg-sources-label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 3px;
+}
+.msg-sources-list {
+  margin: 0;
+  padding-left: 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.msg-sources-list li {
+  line-height: 1.55;
+}
 .msg-sources {
   margin-top: 6px;
   font-size: 11px;
@@ -3159,6 +3668,64 @@ function runCoach(run) {
 .avatar-panel {
   position: sticky;
   top: 100px;
+  min-width: 0;
+  /* P1：短视口（<620px 高）下让面板自己内部滚动，避免「停止」被切出屏幕 */
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.float-switch {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fafaff;
+  padding: 10px 11px;
+}
+.float-switch-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.float-switch-label {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #4b5470;
+}
+.float-switch-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.switch {
+  width: 38px;
+  height: 21px;
+  flex: none;
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  background: #cfd4e6;
+  position: relative;
+  transition: background 0.18s ease;
+}
+.switch.on {
+  background: var(--primary);
+}
+.switch-knob {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(20, 28, 60, 0.22);
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.switch.on .switch-knob {
+  transform: translateX(17px);
 }
 .quiz {
   background: #fbfbff;
@@ -3279,6 +3846,14 @@ function runCoach(run) {
   line-height: 1.8;
   color: #3f4660;
   margin-top: 8px;
+}
+/* P0：长公式自己横向滚动，不撑破卡片 */
+.lesson-card :deep(.katex-display),
+.lesson-md :deep(.katex-display),
+.panel-md :deep(.katex-display) {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .panel-md :deep(.katex-display) {
   margin: 0.5em 0;
@@ -3461,12 +4036,27 @@ function runCoach(run) {
   .avatar-panel {
     position: static;
   }
+  /* P0：窄屏下让学习台卡片能收缩，不被内容 max-content 顶开 */
+  .lesson-card,
+  .lesson-body,
+  .workspace-main {
+    min-width: 0;
+    max-width: 100%;
+  }
 }
 
 /* —— 手机端（对齐原型：顶栏 + 底栏 + 单列可读） —— */
 @media (max-width: 720px) {
   .desktop-only {
     display: none !important;
+  }
+  /* 手机端没有常驻侧栏，清掉为图标条预留的左侧空隙 */
+  .shell {
+    padding-left: 0 !important;
+  }
+  /* F8：复习页 tabs 会把卡片撑出视口 */
+  .review-main {
+    min-width: 0;
   }
   .mobile-only {
     display: flex !important;
@@ -3826,5 +4416,114 @@ function runCoach(run) {
     margin-top: 18px;
     padding-bottom: 8px;
   }
+}
+
+/* —— 动效偏好：放在样式表末尾，确保覆盖上面所有 transition —— */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .nav-item,
+  .topic-card,
+  .tab,
+  .chip,
+  .switch,
+  .switch-knob,
+  .step-dot,
+  .player-btn,
+  .option,
+  .lecture-entry-wrap::after,
+  .sidebar,
+  .search,
+  .btn-soft,
+  .btn-primary,
+  .step {
+    transition: none !important;
+    animation: none !important;
+  }
+  .switch.on .switch-knob {
+    transform: translateX(17px);
+  }
+}
+
+/* —— 子代理审查发现的补充修复 —— */
+/* 课件入口副文案「41 页 · 全屏讲解」原 4.47:1，提到 5.15 */
+.lesson-ppt-entry .tiny {
+  color: #5f6781;
+}
+/* 首页提问区「知」徽标：渐变浅端白字仅 3.33:1，加深渐变 */
+.home-ask-mark {
+  background: linear-gradient(145deg, #6a5cd8, #5246c4);
+}
+/* D9：卡片简介原 #8d94a8 对比度仅 3.03:1，提高到 4.6:1 */
+.topic-card p {
+  color: #6b7290;
+}
+/* D10：答疑/右栏提示小字原 2.25:1 */
+.qa-hint,
+.composer-hint,
+.ask-head-hint,
+.ask-space .tiny {
+  color: #6b7290;
+}
+/* D4：未选选项提交时的提示 */
+.quiz-hint {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #b4632a;
+}
+/* D5：练习完成态 */
+.quiz-done {
+  border-style: dashed;
+}
+/* D6：搜索无结果 */
+.empty-search {
+  padding: 34px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.empty-search p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+/* D11：Tab 组件语义（role/aria 由模板提供，这里只补非活动态对比度） */
+.tab:not(.active) {
+  color: #5f6781;
+}
+
+/* —— P2：对比度补到 AA 4.5:1 —— */
+/* 步骤条未选中标签 2.74:1 */
+.step,
+.step-dot {
+  color: #5f6781;
+}
+/* 浏览器语音播报 2.70:1 */
+.player-sub,
+.avatar-status .tiny {
+  color: #626a85;
+}
+/* 标注提示 3.13:1 */
+.tiny,
+.topic-notes-mini,
+.lesson-body .tiny {
+  color: #6b7290;
+}
+/* 答疑空间右栏讲次标题 3.18:1 */
+.ask-space .chapter-title,
+.ask-space .tiny,
+.qa-hint {
+  color: #6b7290;
+}
+/* 首页「从…继续」4.17:1 */
+.hero-continue-from {
+  color: #4a635c;
+}
+/* 学习台副标题 4.38:1、系统提示 4.03:1 */
+.workspace-header .tiny,
+.msg-meta {
+  color: #6b7290;
 }
 </style>

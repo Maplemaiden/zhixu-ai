@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { api } from "../api";
 
 const props = defineProps({
@@ -34,8 +34,74 @@ function fillDemo(acc) {
   error.value = "";
 }
 
+/** 把后端 Pydantic / JSON 报错翻成可读中文 */
+function friendlyError(e, fallback) {
+  const raw = String(e?.message || "");
+  // Pydantic 校验错误是一个 JSON 数组
+  if (raw.trim().startsWith("[")) {
+    try {
+      const arr = JSON.parse(raw);
+      const map = {
+        string_too_short: (f) => (f.includes("username") ? "账号至少 2 个字符" : "密码太短，请至少 6 位"),
+        string_too_long: () => "输入内容过长",
+        value_error: () => "输入格式不正确",
+        missing: () => "请填写必填项",
+      };
+      const msgs = arr.map((it) => {
+        const f = (it.loc || []).join(".");
+        const label = f.includes("username") ? "账号" : f.includes("password") ? "密码" : f || "输入项";
+        const fn = map[it.type];
+        return fn ? fn(f) : `${label}：${it.msg || "格式不正确"}`;
+      });
+      if (msgs.length) return [...new Set(msgs)].join("；");
+    } catch {
+      /* 落到下面 */
+    }
+    return fallback;
+  }
+  // 后端的中文业务提示（"账号已存在"等）原样展示
+  if (/[\u4e00-\u9fa5]/.test(raw)) return raw;
+  if (/Invalid|incorrect/i.test(raw)) return "账号或密码不正确";
+  return raw || fallback;
+}
+
+watch(mode, () => {
+  error.value = "";
+});
+
 async function submit() {
   error.value = "";
+  // 本地前置校验：按「账号 → 密码」顺序给出第一条错误，
+  // 避免后端按字段顺序只报密码、用户改完再被拦一次
+  const u = username.value.trim();
+  const p = password.value;
+  if (mode.value === "register") {
+    if (!u) {
+      error.value = "请填写账号";
+      return;
+    }
+    if (u.length < 2) {
+      error.value = "账号至少 2 个字符";
+      return;
+    }
+    if (!p) {
+      error.value = "请填写密码";
+      return;
+    }
+    if (p.length < 6) {
+      error.value = "密码太短，请至少 6 位";
+      return;
+    }
+  } else {
+    if (!u) {
+      error.value = "请填写账号";
+      return;
+    }
+    if (!p) {
+      error.value = "请填写密码";
+      return;
+    }
+  }
   loading.value = true;
   try {
     if (mode.value === "login") {
@@ -44,7 +110,7 @@ async function submit() {
       await props.doRegister(username.value.trim(), password.value, displayName.value.trim());
     }
   } catch (e) {
-    error.value = e?.message || "登录失败";
+    error.value = friendlyError(e, mode.value === "login" ? "登录失败" : "注册失败");
   } finally {
     loading.value = false;
   }
@@ -70,11 +136,21 @@ async function submit() {
       <form class="form" @submit.prevent="submit">
         <label>
           <span>账号</span>
-          <input v-model="username" autocomplete="username" placeholder="账号" required />
+          <input
+            v-model="username"
+            autocomplete="username"
+            placeholder="账号"
+            required
+            @input="error = ''"
+          />
         </label>
         <label v-if="mode === 'register'">
           <span>显示名（可选）</span>
-          <input v-model="displayName" placeholder="如：王同学" />
+          <input
+            v-model="displayName"
+            placeholder="如：王同学"
+            @input="error = ''"
+          />
         </label>
         <label>
           <span>密码</span>
@@ -84,6 +160,7 @@ async function submit() {
             autocomplete="current-password"
             placeholder="密码"
             required
+            @input="error = ''"
           />
         </label>
         <p v-if="error" class="err">{{ error }}</p>

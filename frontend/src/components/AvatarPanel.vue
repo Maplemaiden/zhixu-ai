@@ -31,6 +31,8 @@ defineEmits(["play", "pause", "resume", "stop", "prev", "next"]);
       <span class="tiny">{{ sectionLabel || (speaking ? (paused ? "已暂停" : "讲解中") : "待命") }}</span>
     </div>
 
+    <slot name="extra" />
+
     <div class="player">
       <div class="player-buttons">
         <button class="player-btn" type="button" title="上一段" @click="$emit('prev')">‹</button>
@@ -228,12 +230,21 @@ defineEmits(["play", "pause", "resume", "stop", "prev", "next"]);
   height: 48px;
   border-radius: 14px;
 }
+/* 播放控件 hover —— 必须写在本组件内。
+   App.vue 的 <style scoped> 会编译成 .player-btn[data-v-App]:hover，
+   而这里的元素带的是 [data-v-AvatarPanel]，跨组件永不匹配（此前写错过两次）。 */
+.player-btn:hover:not(:disabled) {
+  background: #f0edff;
+  border-color: #d8cffd;
+  color: var(--primary);
+}
 .player-sub {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
   font-size: 11px;
-  color: #9397ae;
+  /* 原 #9397ae 在 #f7f7fc 上只有 2.70:1，提到 4.6:1 */
+  color: #626a85;
 }
 .link {
   border: 0;
@@ -246,7 +257,8 @@ defineEmits(["play", "pause", "resume", "stop", "prev", "next"]);
   padding: 13px 15px;
   border-radius: 12px;
   font-size: 12px;
-  color: #777e96;
+  /* 原 #777e96 在白底 4.03:1，提到 4.6:1 */
+  color: #646b85;
   line-height: 1.7;
   margin-top: 12px;
   min-height: 64px;

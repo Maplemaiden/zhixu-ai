@@ -54,11 +54,20 @@ const line = computed(() => {
   return expanded.value ? contextTitle.value : "知知";
 });
 
+/** 侧栏图标条宽 76px；浮层最小 x 留 8px 间隙，避免拖过去把导航盖死 */
+const SIDEBAR_RAIL = 84;
+/** 侧栏只在桌面端存在（≤720 隐藏），那时才需要让开图标条 */
+function minX() {
+  return window.innerWidth > 720 ? SIDEBAR_RAIL : 8;
+}
 function clampToSize(x, y, w, h) {
-  const maxX = Math.max(8, window.innerWidth - w - 8);
+  const gap = 8;
+  const lo = minX();
+  // 关键：右边界必须先满足可用空间，否则窄屏下 Math.max 会把面板推出视口
+  const maxX = Math.max(lo, window.innerWidth - w - gap);
   const maxY = Math.max(8, window.innerHeight - h - props.bottomPad);
   return {
-    x: Math.min(maxX, Math.max(8, x)),
+    x: Math.min(maxX, Math.max(lo, x)),
     y: Math.min(maxY, Math.max(8, y)),
   };
 }
@@ -99,16 +108,34 @@ function loadPos() {
   pos.value = { ...dock };
 }
 
-/** 展开时尽量贴着 dock，只在越界时轻推，避免弹到屏幕角 */
+/** 展开时尽量贴着 dock，只在越界时轻推，避免弹到屏幕角。
+ *  额外避让右栏数字人面板（.avatar-panel）：展开后若与之重叠，
+ *  整体左移到它的左侧，避免盖住播放/停止按钮。 */
 function placeExpandedNearDock() {
   const dock = dockPos.value;
   const w = rootEl.value?.offsetWidth || 320;
   const h = rootEl.value?.offsetHeight || 360;
-  // 优先：面板右下角对齐小精灵右下角（右下角浮层展开时几乎不跳）
   const dockW = 74;
   const dockH = 88;
+  // 优先：面板右下角对齐小精灵右下角（右下角浮层展开时几乎不跳）
   let x = dock.x + dockW - w;
   let y = dock.y + dockH - h;
+
+  // 避让：只避开右栏「播放器控件区」(.player)。
+  // 压在数字人脸部可以接受（用户正在和它对话），但压住播放/停止按钮不行；
+  // 横移到左侧会压住答题选项，更糟。
+  const player = document.querySelector(".avatar-panel .player");
+  if (player) {
+    const pr = player.getBoundingClientRect();
+    const overlapsX = x + w > pr.left - 8 && x < pr.right + 8;
+    const overlapsY = y + h > pr.top - 8 && y < pr.bottom + 8;
+    if (overlapsX && overlapsY) {
+      // 上移到播放器之上；上方空间不足则下移到其下
+      const above = pr.top - h - 10;
+      y = above >= 8 ? above : Math.min(pr.bottom + 10, window.innerHeight - h - props.bottomPad);
+    }
+  }
+
   pos.value = clampToSize(x, y, w, h);
 }
 
@@ -190,6 +217,26 @@ function onPointerUp(e) {
   }
 }
 
+/** 键盘激活（Enter/Space）：无鼠标坐标，展开并贴着 dock */
+function expandFromKeyboard() {
+  if (expanded.value) return;
+  dockPos.value = { ...pos.value };
+  saveDock();
+  expanded.value = true;
+  nextTick(() => placeExpandedNearDock());
+}
+
+/** 展开态的兜底出口：Esc / 点面板外部都收起 */
+function onDocKeydown(e) {
+  if (e.key === "Escape" && expanded.value) collapse();
+}
+function onDocPointerDown(e) {
+  if (!expanded.value) return;
+  const t = e.target;
+  if (rootEl.value && t instanceof Node && rootEl.value.contains(t)) return;
+  collapse();
+}
+
 function collapse() {
   expanded.value = false;
   nextTick(() => {
@@ -258,6 +305,20 @@ watch(
 );
 
 onMounted(() => {
+  // 移动端首次挂载时 innerWidth/innerHeight 还没稳定，
+  // 立刻 clamp 会把浮层算到屏幕外。等两帧后再定位一次。
+  const settlePos = () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (expanded.value) placeExpandedNearDock();
+        else restoreDock();
+      });
+    });
+  };
+  settlePos();
+  window.addEventListener("resize", settlePos);
+  document.addEventListener("keydown", onDocKeydown);
+  document.addEventListener("pointerdown", onDocPointerDown, true);
   loadPos();
   if (props.visible && props.defaultExpanded) {
     expanded.value = true;
@@ -270,6 +331,9 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("resize", settlePos);
+  document.removeEventListener("keydown", onDocKeydown);
+  document.removeEventListener("pointerdown", onDocPointerDown, true);
   window.removeEventListener("resize", onResize);
   window.removeEventListener("pointermove", onPointerMove);
   window.removeEventListener("pointerup", onPointerUp);
@@ -291,7 +355,16 @@ onUnmounted(() => {
     @pointercancel="onPointerUp"
   >
     <!-- 收起：可拖小精灵（div，避免 button 拦截拖拽） -->
-    <div v-if="!expanded" class="spirit-dock" title="拖动或点击展开" role="button" tabindex="0">
+    <div
+      v-if="!expanded"
+      class="spirit-dock"
+      title="拖动或点击展开"
+      role="button"
+      tabindex="0"
+      aria-label="展开知知对话"
+      @keydown.enter.prevent="expandFromKeyboard"
+      @keydown.space.prevent="expandFromKeyboard"
+    >
       <span class="spirit-fig" aria-hidden="true">
         <i class="hair" /><i class="face" /><i class="body" />
       </span>
@@ -346,6 +419,10 @@ onUnmounted(() => {
 }
 .spirit-float.dragging {
   cursor: grabbing;
+}
+.spirit-dock:focus-visible {
+  outline: 2px solid #6658df;
+  outline-offset: 3px;
 }
 .spirit-dock {
   width: 74px;

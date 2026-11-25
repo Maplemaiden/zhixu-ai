@@ -56,3 +56,15 @@ export function wrongFor(topicId) {
 export function numLearned() {
   return Object.keys(store.progress).length;
 }
+
+/** 只清学习记录，保留登录态（localStorage.clear() 会连 token 一起清掉导致被登出） */
+export function clearLearningData() {
+  store.progress = {};
+  store.wrong = [];
+  store.lastTopicId = "expected_value";
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+}
