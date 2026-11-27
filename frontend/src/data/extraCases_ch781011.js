@@ -1,6 +1,6 @@
-/** 第七、八、十、十一讲案例（概念拆解）
- * 无 computeKind → 按 walkthrough 口播，不调 Solver
- * 数据与结论只取自 knowledge/midterm 对应教案，不另编数值
+/** 第七、八、十、九讲案例
+ * computeKind 有值 → 调 Solver；无 computeKind → 按 walkthrough 口播
+ * 概念拆解的数字只取自 knowledge/midterm；第九讲验算例用公开教学材料中的研究生院试评估表
  */
 
 const ahp = [
@@ -296,6 +296,47 @@ const discrete_sim = [
 ];
 
 const madm = [
+  {
+    id: "grad_school",
+    title: "教学验算 · 研究生院评估",
+    intro: "五所研究生院、四项属性。人均专著与科研经费为效益型，逾期毕业率为成本型，生师比为区间型（最优 5～6，容忍 2～12）。默认权重 (0.2, 0.3, 0.4, 0.1)，TOPSIS 下 x4 最优；把「逾期毕业率」权重大幅拖高，会改成 x5。",
+    computeKind: "madm",
+    payload: {
+      alternatives: ["x1", "x2", "x3", "x4", "x5"],
+      attributes: ["人均专著", "生师比", "科研经费", "逾期毕业率"],
+      types: ["benefit", "interval", "benefit", "cost"],
+      matrix: [
+        [0.1, 5, 5000, 4.7],
+        [0.2, 6, 6000, 5.6],
+        [0.4, 7, 7000, 6.7],
+        [0.9, 10, 10000, 2.3],
+        [1.2, 2, 400, 1.8],
+      ],
+      weights: [0.2, 0.3, 0.4, 0.1],
+      method: "topsis",
+      interval: {
+        生师比: { best_low: 5, best_high: 6, tol_low: 2, tol_high: 12 },
+      },
+    },
+  },
+  {
+    id: "notebooks",
+    title: "调权演示 · 三种笔记本",
+    intro: "三台电脑：性能与续航是效益型，价格是成本型。默认更看重性能和续航，A 本最优；把「价格」权重大幅拖高，最优会变成更便宜的 B 本。",
+    computeKind: "madm",
+    payload: {
+      alternatives: ["A 本", "B 本", "C 本"],
+      attributes: ["性能", "价格", "续航"],
+      types: ["benefit", "cost", "benefit"],
+      matrix: [
+        [95, 12000, 16],
+        [70, 4000, 8],
+        [82, 7000, 11],
+      ],
+      weights: [0.45, 0.15, 0.4],
+      method: "topsis",
+    },
+  },
   {
     id: "preprocess",
     title: "PPT 走查 · 决策矩阵为什么要预处理",

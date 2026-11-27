@@ -170,7 +170,8 @@ STEP_CARDS.update(FINE_STEP_CARDS)
 
 SECTION_LABELS = {
     0: "讲解",
-    1: "做题答疑",
+    1: "案例",  # 有 Solver 的讲由前端传 section_label=实验台
+    2: "做题答疑",
 }
 
 

@@ -399,8 +399,9 @@ FINE_STEP_CARDS: dict[str, dict] = {
         ],
         "speak_intro": "三种常用评分排序法，连同它们的假设一起记。",
         "formula_latex": r"C_i^*=\dfrac{d_i^0}{d_i^0+d_i^*}",
-        "has_compute": False,
-        "compute_note": "先掌握步骤与假设；程序验算二期可接。",
+        "has_compute": True,
+        "compute_kind": "madm",
+        "compute_note": "实验台：同一张决策矩阵可切换加权和 / 加权积 / TOPSIS，并拖动权重。",
     },
     "madm9_outranking": {
         "method_id": "madm9_outranking",

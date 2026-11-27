@@ -40,13 +40,19 @@ function emitSpeech() {
   });
 }
 
-/** 这一页要讲的话；教学文案未导入前只报页码 */
+/** 这一页要讲的话；来自 knowledge/narration，未导入时只报页码 */
 function lectureLines(s, pageIndex = 0) {
   if (!s) return [];
   if (Array.isArray(s.narration) && s.narration.length) {
     return s.narration.map((x) => String(x).trim()).filter(Boolean);
   }
   return [`请看第 ${pageIndex + 1} 页。`];
+}
+
+function pageNarrationText(s) {
+  const lines = Array.isArray(s?.narration) ? s.narration : [];
+  const joined = lines.map((x) => String(x).trim()).filter(Boolean).join("");
+  return joined.slice(0, 480);
 }
 
 function say(text) {
@@ -185,9 +191,11 @@ async function sendAsk() {
 
   askLoading.value = true;
   try {
+    const spoken = pageNarrationText(s);
     const q = [
       `【课件页】${props.deck.chapterTitle} · ${s?.meta || ""} · ${s?.title || ""}`,
       s?.intro ? `本页导语：${s.intro}` : "",
+      spoken ? `本页口播：${spoken}` : "",
       `学生问题：${text}`,
     ]
       .filter(Boolean)

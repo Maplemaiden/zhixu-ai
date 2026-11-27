@@ -85,6 +85,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  computeMadm: (payload) =>
+    request("/compute/madm", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   listQuiz: (methodId = "expected_value") => request(`/quiz/${methodId}`),
   grade: (body) =>
     request("/quiz/grade", {

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.solvers.expected_value import ExpectedValueInput, solve as solve_ev
+from app.solvers.madm import MadmInput, solve as solve_madm
 from app.solvers.uncertainty import UncertaintyInput, solve as solve_unc
 
 router = APIRouter(prefix="/compute", tags=["compute"])
@@ -18,5 +19,13 @@ def compute_expected_value(body: ExpectedValueInput):
 def compute_uncertainty(body: UncertaintyInput):
     try:
         return solve_unc(body).model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.post("/madm")
+def compute_madm(body: MadmInput):
+    try:
+        return solve_madm(body).model_dump()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

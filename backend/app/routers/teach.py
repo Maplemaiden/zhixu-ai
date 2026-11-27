@@ -16,7 +16,7 @@ router = APIRouter(prefix="/teach", tags=["teach"])
 class AskBody(BaseModel):
     question: str = Field(..., min_length=1)
     method_id: str = "expected_value"
-    section: int | None = Field(default=None, ge=0, le=1)
+    section: int | None = Field(default=None, ge=0, le=2)
     section_label: str | None = None
 
 
@@ -58,6 +58,16 @@ def _build_system(card: dict | None, section: int | None, section_label: str | N
         "资料检索不足时：先用步骤卡能回答的部分（符号表、标准步骤、公式），再说明缺哪段教材细节；不要整段空拒。",
         "不要编造课程资料中没有的数值；回答末尾列出引用的来源文件名。",
     ]
+    if label == "实验台":
+        parts.append(
+            "学生正在实验台：若问题中附带「调整前/调整后」程序验算结果，"
+            "解释时必须原样引用这些数字与最优方案，禁止重新口算或改写。"
+        )
+    elif label == "案例" or section == 1:
+        parts.append(
+            "学生正在看本讲案例：结合案例要素与教材规则讲解；"
+            "不要编造未给出的数值，也不要假装这里有程序调参。"
+        )
     if card:
         if label:
             parts.append(f"当前学习段：{label}" + (f"（第 {section + 1} 段）" if section is not None else ""))

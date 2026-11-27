@@ -206,7 +206,7 @@ export const chapters = [
       {
         id: "lecture_ch9",
         title: "第九讲学习台",
-        desc: "决策矩阵、预处理、定权与综合排序（含 TOPSIS 等）；本讲课件与案例。",
+        desc: "决策矩阵、预处理、定权；实验台可切换加权和 / 加权积 / TOPSIS 并改权重。",
         type: "整讲",
         status: "ready",
         methodId: "madm",

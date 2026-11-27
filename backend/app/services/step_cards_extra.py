@@ -476,8 +476,9 @@ EXTRA_STEP_CARDS: dict[str, dict] = {
             },
         ],
         "speak_intro": "第九讲多属性决策。我们先把决策矩阵和属性预处理讲清楚，再谈综合排序。",
-        "formula_latex": r"z_{ij}=\dfrac{y_{ij}-y_j^{\min}}{y_j^{\max}-y_j^{\min}}",
-        "has_compute": False,
-        "compute_note": "本讲以矩阵表达与预处理为主；TOPSIS等程序验算可二期加。",
+        "formula_latex": r"C_i^*=\dfrac{d_i^0}{d_i^0+d_i^*}",
+        "has_compute": True,
+        "compute_kind": "madm",
+        "compute_note": "实验台可在加权和、加权积、TOPSIS 之间切换，并改权重看排序变化。数字只信程序验算。",
     },
 }
