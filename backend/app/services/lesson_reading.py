@@ -65,7 +65,7 @@ SECTION_HINTS: dict[str, list[str]] = {
     "discrete_sim": ["九大部件", "排队", "库存", "事件"],
     "madm_matrix": ["决策矩阵", "问题引入"],
     "madm_preprocess": ["预处理", "规范化", "非量纲"],
-    "madm": ["综合", "排序", "TOPSIS", "加权"],
+    "madm": ["决策矩阵", "预处理", "权重", "加权", "TOPSIS", "排序"],
 }
 
 
@@ -103,14 +103,17 @@ def get_lesson_reading(method_id: str, limit: int = 4) -> dict:
     if not pool:
         pool = chunks
 
-    scored: list[tuple[float, dict]] = []
-    for c in pool:
+    scored: list[tuple[int, float, dict]] = []
+    for idx, c in enumerate(pool):
         s = _score_chunk(c["text"], c["title"], [h for h in hints if h])
         if s > 0:
-            scored.append((s, c))
-    scored.sort(key=lambda x: x[0], reverse=True)
+            scored.append((idx, s, c))
+    scored.sort(key=lambda x: x[1], reverse=True)
 
-    picked = [c for _, c in scored[:limit]]
+    top_items = scored[:limit]
+    # 选中最相关的切片后，恢复其在原始教材/讲义中的先后顺序，避免小节跳号乱序
+    top_items.sort(key=lambda x: x[0])
+    picked = [c for _, _, c in top_items]
     if not picked and pool:
         # 该讲文件兜底：取靠前的若干切片，避免讲解页空白
         picked = pool[: min(limit, 3)]

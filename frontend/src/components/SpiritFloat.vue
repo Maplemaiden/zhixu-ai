@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { api } from "../api";
 import { useSpeech } from "../composables/useSpeech";
 import { findTopic, resolveTopicRef } from "../data/catalog";
+import { renderRichText } from "../utils/renderRichText";
 
 const props = defineProps({
   visible: { type: Boolean, default: true },
@@ -87,7 +88,9 @@ function saveDock() {
 }
 
 function defaultDock() {
-  return clampToSize(window.innerWidth - 120, window.innerHeight - 200, 74, 88);
+  const thumb = document.querySelector(".thumb-rail");
+  const rightReserve = thumb ? thumb.getBoundingClientRect().width + 104 : 120;
+  return clampToSize(window.innerWidth - rightReserve, window.innerHeight - 200, 74, 88);
 }
 
 function loadPos() {
@@ -121,18 +124,22 @@ function placeExpandedNearDock() {
   let x = dock.x + dockW - w;
   let y = dock.y + dockH - h;
 
-  // 避让：只避开右栏「播放器控件区」(.player)。
-  // 压在数字人脸部可以接受（用户正在和它对话），但压住播放/停止按钮不行；
-  // 横移到左侧会压住答题选项，更糟。
-  const player = document.querySelector(".avatar-panel .player");
-  if (player) {
-    const pr = player.getBoundingClientRect();
+  // 避让右栏播放器、课件右侧缩略图栏与讲义划词浮层
+  const avoidSelectors = [".avatar-panel .player", ".thumb-rail", ".anno-toolbar"];
+  for (const sel of avoidSelectors) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    const pr = el.getBoundingClientRect();
+    if (!pr.width || !pr.height) continue;
     const overlapsX = x + w > pr.left - 8 && x < pr.right + 8;
     const overlapsY = y + h > pr.top - 8 && y < pr.bottom + 8;
     if (overlapsX && overlapsY) {
-      // 上移到播放器之上；上方空间不足则下移到其下
-      const above = pr.top - h - 10;
-      y = above >= 8 ? above : Math.min(pr.bottom + 10, window.innerHeight - h - props.bottomPad);
+      if (sel === ".thumb-rail") {
+        x = Math.max(minX(), pr.left - w - 12);
+      } else {
+        const above = pr.top - h - 10;
+        y = above >= 8 ? above : Math.min(pr.bottom + 10, window.innerHeight - h - props.bottomPad);
+      }
     }
   }
 
@@ -304,17 +311,25 @@ watch(
   }
 );
 
-onMounted(() => {
-  // 移动端首次挂载时 innerWidth/innerHeight 还没稳定，
-  // 立刻 clamp 会把浮层算到屏幕外。等两帧后再定位一次。
-  const settlePos = () => {
+function onSpiritKeydown(e) {
+  if (e.isComposing || e.keyCode === 229) return;
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendQuick();
+  }
+}
+
+// 移动端首次挂载时 innerWidth/innerHeight 还没稳定，等两帧后再定位一次
+function settlePos() {
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (expanded.value) placeExpandedNearDock();
-        else restoreDock();
-      });
+      if (expanded.value) placeExpandedNearDock();
+      else restoreDock();
     });
-  };
+  });
+}
+
+onMounted(() => {
   settlePos();
   window.addEventListener("resize", settlePos);
   document.addEventListener("keydown", onDocKeydown);
@@ -387,14 +402,14 @@ onUnmounted(() => {
         <button class="icon-btn no-drag" type="button" title="收起" @click="collapse">–</button>
       </div>
 
-      <div class="spirit-line">{{ line }}</div>
+      <div class="spirit-line" v-html="renderRichText(line, { math: true })" />
 
       <textarea
         v-model="input"
         class="no-drag"
         rows="2"
         placeholder="提问…"
-        @keydown.enter.exact.prevent="sendQuick"
+        @keydown="onSpiritKeydown"
       />
 
       <div class="spirit-actions no-drag">
@@ -584,6 +599,13 @@ onUnmounted(() => {
   color: #2c4450;
   min-height: 52px;
   margin-bottom: 8px;
+  word-break: break-word;
+}
+.spirit-line :deep(.md-p) {
+  margin: 0 0 4px;
+}
+.spirit-line :deep(.md-p:last-child) {
+  margin-bottom: 0;
 }
 .spirit-panel textarea {
   width: 100%;

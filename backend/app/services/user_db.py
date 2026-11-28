@@ -113,9 +113,11 @@ def register_user(username: str, password: str, display_name: str = "") -> dict[
     username = username.strip()
     if not username or len(username) < 2:
         raise ValueError("账号至少 2 个字符")
-    if not password or len(password) < 4:
-        raise ValueError("密码至少 4 位")
-    display_name = (display_name or username).strip()
+    if not password or len(password) < 6:
+        raise ValueError("密码至少 6 位")
+    if not password.strip():
+        raise ValueError("密码不能全为空格")
+    display_name = (display_name or "").strip() or username
     pwd_hash, salt = _hash_password(password)
     user_id = str(uuid.uuid4())
     with _connect() as conn:
@@ -124,11 +126,14 @@ def register_user(username: str, password: str, display_name: str = "") -> dict[
         ).fetchone()
         if exists:
             raise ValueError("账号已存在")
-        conn.execute(
-            "INSERT INTO users (id, username, password_hash, salt, display_name, created_at) VALUES (?,?,?,?,?,?)",
-            (user_id, username, pwd_hash, salt, display_name, time.time()),
-        )
-        conn.commit()
+        try:
+            conn.execute(
+                "INSERT INTO users (id, username, password_hash, salt, display_name, created_at) VALUES (?,?,?,?,?,?)",
+                (user_id, username, pwd_hash, salt, display_name, time.time()),
+            )
+            conn.commit()
+        except sqlite3.IntegrityError as e:
+            raise ValueError("账号已存在") from e
     return {"id": user_id, "username": username, "display_name": display_name}
 
 

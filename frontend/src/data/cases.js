@@ -260,6 +260,7 @@ export const casesByMethod = {
         ],
         sense: "max",
         criterion: "pessimistic",
+        alpha: 0.6,
       },
     },
     {
@@ -277,6 +278,7 @@ export const casesByMethod = {
         ],
         sense: "max",
         criterion: "optimistic",
+        alpha: 0.6,
       },
     },
     {
@@ -294,6 +296,7 @@ export const casesByMethod = {
         ],
         sense: "max",
         criterion: "regret",
+        alpha: 0.6,
       },
     },
   ],

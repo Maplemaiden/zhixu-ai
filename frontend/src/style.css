@@ -46,6 +46,19 @@ a {
   text-decoration: none;
 }
 
+/* 统一键盘焦点样式（避免 button 走系统黑框、input 走浅紫阴影的两套割裂感） */
+:is(button, a, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(102, 88, 223, 0.16);
+}
+
+/* KaTeX 无障碍隐藏节点不参与选区与 Ctrl+C 复制，避免公式被提取两遍 */
+.katex .katex-mathml {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* ── Markdown 渲染（讲义正文 + 答疑气泡共用）────────────────────────
    之前表格样式只挂在 .lesson-md 下，答疑气泡里的表格没有任何样式，
    宽高全乱；这里统一成全局规则，两处都能正确显示。 */

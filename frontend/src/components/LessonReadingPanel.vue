@@ -9,6 +9,8 @@ const props = defineProps({
   source: { type: String, default: "" },
   emptyHint: { type: String, default: "" },
   createNote: { type: Function, required: true },
+  updateNote: { type: Function, default: null },
+  deleteNote: { type: Function, default: null },
 });
 
 const emit = defineEmits(["reload"]);
@@ -26,16 +28,17 @@ const toolbar = ref({
   show: false,
   x: 0,
   y: 0,
-  /** true = 渲染在选区下方（靠近视口顶部时翻转，避免浮层跑出屏幕） */
   flip: false,
   quote: "",
   sectionIndex: 0,
+  editingId: "",
 });
 const color = ref("amber");
 const tag = ref("重点");
 const remark = ref("");
 const saving = ref(false);
 const saveError = ref("");
+let touchTimer = null;
 
 const notesBySection = computed(() => {
   const map = {};
@@ -59,21 +62,86 @@ function paint() {
 
 function hideToolbar() {
   toolbar.value.show = false;
+  toolbar.value.editingId = "";
   saveError.value = "";
 }
 
+function computeToolbarCoords(anchorRect) {
+  const host = rootRef.value.getBoundingClientRect();
+  const viewportH = window.innerHeight || document.documentElement.clientHeight;
+  const TOOLBAR_W = Math.min(320, (window.innerWidth || 800) * 0.9);
+  const halfW = Math.min(TOOLBAR_W / 2 + 8, Math.max(80, host.width / 2 - 8));
+  const TOOLBAR_H = 216;
+  const GAP = 12;
+  const SAFE = 8;
+  const spaceAbove = anchorRect.top - GAP;
+  const spaceBelow = viewportH - anchorRect.bottom - GAP;
+  const putBelow = spaceBelow >= TOOLBAR_H + SAFE || spaceAbove < TOOLBAR_H + SAFE;
+
+  let yViewportTop = putBelow ? anchorRect.bottom + GAP : anchorRect.top - GAP - TOOLBAR_H;
+  const maxTop = Math.max(SAFE, viewportH - TOOLBAR_H - SAFE);
+  yViewportTop = Math.min(Math.max(yViewportTop, SAFE), maxTop);
+
+  let x = Math.min(
+    Math.max(anchorRect.left - host.left + anchorRect.width / 2, halfW),
+    Math.max(halfW, host.width - halfW)
+  );
+
+  // 若右下角浮层知知与当前浮层重叠，向左避让
+  const spirit = document.querySelector(".spirit-float");
+  if (spirit && spirit.offsetWidth > 0) {
+    const sr = spirit.getBoundingClientRect();
+    const leftVp = host.left + x - TOOLBAR_W / 2;
+    const rightVp = leftVp + TOOLBAR_W;
+    const overlapX = rightVp > sr.left - 8 && leftVp < sr.right + 8;
+    const overlapY = yViewportTop + TOOLBAR_H > sr.top - 8 && yViewportTop < sr.bottom + 8;
+    if (overlapX && overlapY) {
+      const shiftedCenter = sr.left - 12 - TOOLBAR_W / 2 - host.left;
+      x = Math.max(halfW, Math.min(x, shiftedCenter));
+    }
+  }
+
+  return {
+    x,
+    y: putBelow ? yViewportTop - host.top : yViewportTop + TOOLBAR_H - host.top,
+    flip: putBelow,
+  };
+}
+
+function onMarkClick(e) {
+  const markEl = e.target?.closest?.("mark.zhixu-hl");
+  if (!markEl || !rootRef.value?.contains(markEl)) return false;
+  const sel = window.getSelection();
+  if (sel && !sel.isCollapsed && sel.toString().trim().length >= 2) return false;
+  const noteId = markEl.dataset?.noteId;
+  const existing = (props.notes || []).find((n) => n.id === noteId);
+  if (!existing) return false;
+
+  const rect = markEl.getBoundingClientRect();
+  const coords = computeToolbarCoords(rect);
+  color.value = existing.color || "amber";
+  tag.value = existing.tag || "重点";
+  remark.value = existing.remark || "";
+  saveError.value = "";
+  toolbar.value = {
+    show: true,
+    ...coords,
+    quote: existing.quote,
+    sectionIndex: existing.section_index ?? 0,
+    editingId: existing.id,
+  };
+  return true;
+}
+
 function onMouseUp(e) {
-  // 浮层内部的 mouseup 一律不参与选区判定。
-  // 否则点「颜色 / 标签 / 备注 / 保存」时，e.target 在 .anno-toolbar 里、
-  // 不在 [data-section-index] 里，会被下面误判成「点到别处」而把浮层关掉。
   if (e.target?.closest?.(".anno-toolbar")) return;
   const sel = window.getSelection();
   if (!sel || sel.isCollapsed || !sel.rangeCount) {
+    if (onMarkClick(e)) return;
     if (!e.target?.closest?.(".anno-toolbar")) hideToolbar();
     return;
   }
   const range0 = sel.getRangeAt(0);
-  // 归属哪一篇，以**选区起点**所在的 article 为准（用户从哪儿开始选，就标哪儿）
   const startNode = range0.startContainer;
   const startEl =
     startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
@@ -84,8 +152,6 @@ function onMouseUp(e) {
     return;
   }
 
-  // 选区若跨了多篇讲义，把终点裁到本篇末尾。
-  // 否则 quote 会包含别篇的文字，渲染时在本篇里永远找不到 → 保存了却看不到高亮。
   let range = range0.cloneRange();
   if (!article.contains(range.endContainer)) {
     range.setEnd(article, article.childNodes.length);
@@ -94,9 +160,6 @@ function onMouseUp(e) {
     range.setStart(article, 0);
   }
 
-  // 用与渲染端同一套归一化逻辑提取文本：
-  // range.toString() 在块级边界不加空格，而渲染端会补空格，两边不一致会导致
-  // 「保存成功但高亮不出现」（跨段落/跨表格时必然踩到）。
   const frag = range.cloneContents();
   const holder = document.createElement("div");
   holder.appendChild(frag);
@@ -105,45 +168,29 @@ function onMouseUp(e) {
     hideToolbar();
     return;
   }
-  const host = rootRef.value.getBoundingClientRect();
-  // 长选区时 range.getBoundingClientRect() 是整段的外接矩形，可能远超视口，
-  // 直接拿它定位会把浮层画到屏幕外。改用 getClientRects() 里**最后一个可见矩形**作锚点
-  // （也就是选区结束的位置，用户视线通常在这儿）。
+
   const viewportH = window.innerHeight || document.documentElement.clientHeight;
   const allRects = Array.from(range.getClientRects()).filter((r) => r.width > 1 && r.height > 1);
   const visibleRects = allRects.filter((r) => r.bottom > 8 && r.top < viewportH - 8);
   const rect =
     (visibleRects.length ? visibleRects[visibleRects.length - 1] : null) ||
     (allRects.length ? allRects[allRects.length - 1] : range.getBoundingClientRect());
-  // 浮层默认渲染在选区上方（transform: translateY(-100%)）。
-  // 判断「上方放得下吗」必须用**视口坐标** rect.top，而不是相对容器的 host.top
-  // —— 页面滚动后 host.top 是负值，用它会把「上方只剩 100px」误判成「上方有 480px」。
-  const TOOLBAR_H = 210; // 实测渲染高度 192~210
-  const GAP = 12;
-  const SAFE = 8;
-  const spaceAbove = rect.top - GAP;
-  const spaceBelow = viewportH - rect.bottom - GAP;
-  // 优先放**选区下方**：桌面浏览器的选区迷你菜单（Edge 迷你工具条、移动端复制条）
-  // 默认出现在选区上方，放上方会和它叠在一起。
-  // 下方放不下、而上方放得下时，才翻到上方。
-  const putBelow = spaceBelow >= TOOLBAR_H + SAFE || spaceAbove < TOOLBAR_H + SAFE;
 
-  // 先按锚点算 y，再把「最终渲染出来的 top」clamp 进视口，最后反算回 y。
-  let yViewportTop = putBelow ? rect.bottom + GAP : rect.top - GAP - TOOLBAR_H;
-  const maxTop = Math.max(SAFE, viewportH - TOOLBAR_H - SAFE);
-  yViewportTop = Math.min(Math.max(yViewportTop, SAFE), maxTop);
-
+  const coords = computeToolbarCoords(rect);
   toolbar.value = {
     show: true,
-    x: Math.min(Math.max(rect.left - host.left + rect.width / 2, 80), host.width - 80),
-    // y 是相对 host 的偏移；flip=false 时还要再被 translateY(-100%) 上移一个自身高度
-    y: putBelow ? yViewportTop - host.top : yViewportTop + TOOLBAR_H - host.top,
-    flip: putBelow,
+    ...coords,
     quote,
     sectionIndex: Number(article.getAttribute("data-section-index") || 0),
+    editingId: "",
   };
   remark.value = "";
   saveError.value = "";
+}
+
+function onTouchEnd(e) {
+  if (touchTimer) clearTimeout(touchTimer);
+  touchTimer = setTimeout(() => onMouseUp(e), 80);
 }
 
 async function saveNote() {
@@ -151,17 +198,39 @@ async function saveNote() {
   saving.value = true;
   saveError.value = "";
   try {
-    await props.createNote({
-      quote: toolbar.value.quote,
-      section_index: toolbar.value.sectionIndex,
-      color: color.value,
-      tag: tag.value,
-      remark: remark.value.trim(),
-    });
+    if (toolbar.value.editingId && props.updateNote) {
+      await props.updateNote(toolbar.value.editingId, {
+        color: color.value,
+        tag: tag.value,
+        remark: remark.value.trim(),
+      });
+    } else {
+      await props.createNote({
+        quote: toolbar.value.quote,
+        section_index: toolbar.value.sectionIndex,
+        color: color.value,
+        tag: tag.value,
+        remark: remark.value.trim(),
+      });
+    }
     hideToolbar();
     window.getSelection()?.removeAllRanges();
   } catch (err) {
     saveError.value = err?.message || "保存失败";
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function removeEditingNote() {
+  if (!toolbar.value.editingId || !props.deleteNote || saving.value) return;
+  saving.value = true;
+  saveError.value = "";
+  try {
+    await props.deleteNote(toolbar.value.editingId);
+    hideToolbar();
+  } catch (err) {
+    saveError.value = err?.message || "删除失败";
   } finally {
     saving.value = false;
   }
@@ -173,18 +242,17 @@ function onDocClick(e) {
   hideToolbar();
 }
 
-/** Esc 关闭浮层（键盘用户除「取消」之外的快捷出口） */
 function onDocKeydown(e) {
   if (e.key === "Escape" && toolbar.value.show) hideToolbar();
 }
 
 onMounted(() => {
   paint();
-  // pointerdown 同时覆盖鼠标与触屏（mousedown 在部分触屏场景不触发）
   document.addEventListener("pointerdown", onDocClick);
   document.addEventListener("keydown", onDocKeydown);
 });
 onBeforeUnmount(() => {
+  if (touchTimer) clearTimeout(touchTimer);
   document.removeEventListener("pointerdown", onDocClick);
   document.removeEventListener("keydown", onDocKeydown);
 });
@@ -193,9 +261,9 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
 </script>
 
 <template>
-  <div ref="rootRef" class="reading-panel" @mouseup="onMouseUp">
+  <div ref="rootRef" class="reading-panel" @mouseup="onMouseUp" @touchend="onTouchEnd">
     <div class="anno-hint">
-      在讲解正文中划选文字，可添加高亮与标签；标注会随当前账号保存。
+      在讲解正文中划选文字，可添加高亮与标签；点击已有高亮可修改或删除。
       <button v-if="!sections.length" class="linkish" type="button" @click="$emit('reload')">重新加载讲义</button>
     </div>
 
@@ -246,9 +314,18 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
       </div>
       <input v-model="remark" class="remark" maxlength="120" placeholder="可选备注" />
       <div class="actions">
+        <button
+          v-if="toolbar.editingId && deleteNote"
+          type="button"
+          class="danger"
+          :disabled="saving"
+          @click="removeEditingNote"
+        >
+          删除
+        </button>
         <button type="button" class="ghost" @click="hideToolbar">取消</button>
         <button type="button" class="primary" :disabled="saving" @click="saveNote">
-          {{ saving ? "保存中…" : "保存标注" }}
+          {{ saving ? "保存中…" : toolbar.editingId ? "更新标注" : "保存标注" }}
         </button>
       </div>
       <p v-if="saveError" class="err">{{ saveError }}</p>
@@ -292,13 +369,18 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
   font-size: 15px;
   color: #24253b;
 }
+.lesson-md :deep(.katex-display) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px;
+  max-width: 100%;
+}
 .anno-toolbar {
   position: absolute;
   transform: translate(-50%, -100%);
   z-index: 20;
   max-height: 70vh;
   overflow-y: auto;
-  /* 浮层自身不可被划选，避免在浮层上拖动时把里面的文字选进去 */
   user-select: none;
   width: min(320px, 90vw);
   background: #24253b;
@@ -310,9 +392,6 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
 .anno-toolbar.flip {
   transform: translate(-50%, 0);
 }
-/* 触屏 / 窄屏：浮层固定到底部（bottom sheet）。
-   移动端长按选词必然弹系统「复制/全选」菜单，浮层贴着选区一定打架；
-   固定底部可以彻底避开，也更好点。 */
 @media (max-width: 720px), (hover: none) {
   .anno-toolbar,
   .anno-toolbar.flip {
@@ -398,6 +477,7 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
   gap: 8px;
 }
 .ghost,
+.danger,
 .primary {
   border: 0;
   border-radius: 10px;
@@ -408,6 +488,11 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
 .ghost {
   background: transparent;
   color: #c5cae0;
+}
+.danger {
+  margin-right: auto;
+  background: rgba(243, 120, 120, 0.18);
+  color: #ffb4b4;
 }
 .primary {
   background: #6658df;
@@ -425,17 +510,21 @@ watch(() => [props.sections, props.notes], paint, { deep: true });
 </style>
 
 <style>
-/* 高亮样式需非 scoped，因为 mark 是运行时插入的 */
 .zhixu-hl {
-  cursor: help;
-  /* 默认中间碎片：无圆角、无内边距，与前一片无缝相连 */
+  cursor: pointer;
   border-radius: 0;
   padding: 0;
-  /* 单个 mark 跨行时两行各自完整着色 */
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
-/* 一次标注被拆成多片时，只有首尾有圆角，视觉上是一条连续高亮 */
+.zhixu-hl .katex {
+  background: inherit;
+}
+.zhixu-hl.hl-flash {
+  outline: 2px solid #6658df;
+  outline-offset: 2px;
+  transition: outline-color 0.4s ease;
+}
 .zhixu-hl.hl-part-only {
   border-radius: 3px;
   padding: 0 2px;

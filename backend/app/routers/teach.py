@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from app.services import llm, rag
@@ -13,11 +13,17 @@ from app.services.step_cards import (
 router = APIRouter(prefix="/teach", tags=["teach"])
 
 
+class ChatTurn(BaseModel):
+    role: str
+    text: str = ""
+
+
 class AskBody(BaseModel):
-    question: str = Field(..., min_length=1)
+    question: str = Field(..., min_length=1, max_length=2000)
     method_id: str = "expected_value"
     section: int | None = Field(default=None, ge=0, le=2)
     section_label: str | None = None
+    history: list[ChatTurn] = Field(default_factory=list)
 
 
 class ClassifyBody(BaseModel):
@@ -82,27 +88,44 @@ def _build_system(card: dict | None, section: int | None, section_label: str | N
 
 @router.post("/ask")
 def ask(body: AskBody):
+    question = (body.question or "").strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="问题不能为空")
     method_id = (body.method_id or "").strip()
     # 空或 course：全课答疑，不挂某一讲的步骤卡
     card = None if method_id in ("", "course") else get_step_card(method_id)
-    # 检索时附带方法关键词，减轻「这一步/符号」等空指代导致的零命中
-    query = body.question
+    # 检索时附带方法关键词与最近一轮上下文，减轻「这一步/再举个例子」等指代导致的零命中
+    recent_user = ""
+    for turn in reversed(body.history or []):
+        if turn.role == "user" and turn.text.strip():
+            recent_user = turn.text.strip()[:120]
+            break
+    query = question
+    if len(question) <= 12 and recent_user:
+        query = f"{recent_user} {question}"
     if card and card.get("title"):
-        query = f"{body.question} {card['title']}"
+        query = f"{query} {card['title']}"
     hits = rag.retrieve(query)
     context = "\n\n---\n\n".join(
         f"来源：{h['source']}\n标题：{h['title']}\n{h['text'][:1200]}" for h in hits
     ) or "（未检索到足够课程片段；请优先依据步骤卡作答）"
 
-    answer = llm.chat(
-        [
-            {"role": "system", "content": _build_system(card, body.section, body.section_label)},
-            {
-                "role": "user",
-                "content": f"课程资料：\n{context}\n\n学生问题：{body.question}",
-            },
-        ]
+    msgs: list[dict[str, str]] = [
+        {"role": "system", "content": _build_system(card, body.section, body.section_label)},
+    ]
+    for turn in (body.history or [])[-6:]:
+        role = "assistant" if turn.role == "assistant" else "user" if turn.role == "user" else ""
+        txt = (turn.text or "").strip()
+        if role and txt:
+            msgs.append({"role": role, "content": txt[:600]})
+    msgs.append(
+        {
+            "role": "user",
+            "content": f"课程资料：\n{context}\n\n学生问题：{question}",
+        }
     )
+
+    answer = llm.chat(msgs)
     return {
         "answer": answer,
         "sources": [{"source": h["source"], "title": h["title"]} for h in hits],

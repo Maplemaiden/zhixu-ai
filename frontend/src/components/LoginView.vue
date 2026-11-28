@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { api } from "../api";
 import { course } from "../data/catalog.js";
 
@@ -9,12 +9,17 @@ const props = defineProps({
 });
 
 const mode = ref("login");
-const username = ref("demo");
-const password = ref("demo123");
+const username = ref("");
+const password = ref("");
 const displayName = ref("");
 const loading = ref(false);
 const error = ref("");
+const demoNotice = ref("");
+const selectedDemo = ref("");
 const showPassword = ref(false);
+const usernameEl = ref(null);
+const passwordEl = ref(null);
+const submitBtnEl = ref(null);
 const FALLBACK_DEMOS = [
   { username: "demo", password: "demo123", display_name: "演示学生" },
   { username: "student", password: "student123", display_name: "体验学生" },
@@ -35,6 +40,11 @@ function fillDemo(acc) {
   password.value = acc.password;
   mode.value = "login";
   error.value = "";
+  selectedDemo.value = acc.username;
+  demoNotice.value = `已填入「${acc.display_name || acc.username}」，点击下方按钮即可登录`;
+  nextTick(() => {
+    submitBtnEl.value?.focus?.();
+  });
 }
 
 /** 把后端 Pydantic / JSON 报错翻成可读中文 */
@@ -66,8 +76,18 @@ function friendlyError(e, fallback) {
   return raw || fallback;
 }
 
-watch(mode, () => {
+watch(mode, (nextMode) => {
   error.value = "";
+  demoNotice.value = "";
+  selectedDemo.value = "";
+  if (nextMode === "register") {
+    const isDemo = demos.value.some((d) => d.username === username.value.trim());
+    if (isDemo) {
+      username.value = "";
+      password.value = "";
+      displayName.value = "";
+    }
+  }
 });
 
 async function submit() {
@@ -77,27 +97,33 @@ async function submit() {
   if (mode.value === "register") {
     if (!u) {
       error.value = "请填写账号";
+      usernameEl.value?.focus?.();
       return;
     }
     if (u.length < 2) {
       error.value = "账号至少 2 个字符";
+      usernameEl.value?.focus?.();
       return;
     }
     if (!p) {
       error.value = "请填写密码";
+      passwordEl.value?.focus?.();
       return;
     }
     if (p.length < 6) {
       error.value = "密码太短，请至少 6 位";
+      passwordEl.value?.focus?.();
       return;
     }
   } else {
     if (!u) {
       error.value = "请填写账号";
+      usernameEl.value?.focus?.();
       return;
     }
     if (!p) {
       error.value = "请填写密码";
+      passwordEl.value?.focus?.();
       return;
     }
   }
@@ -199,15 +225,16 @@ async function submit() {
           </button>
         </div>
 
-        <form class="form" @submit.prevent="submit">
+        <form class="form" novalidate @submit.prevent="submit">
           <label>
             <span>账号</span>
             <input
+              ref="usernameEl"
               v-model="username"
               autocomplete="username"
               placeholder="请输入账号"
               required
-              @input="error = ''"
+              @input="error = ''; demoNotice = ''; selectedDemo = ''"
             />
           </label>
           <label v-if="mode === 'register'">
@@ -222,12 +249,13 @@ async function submit() {
             <span>密码</span>
             <div class="pw-wrap">
               <input
+                ref="passwordEl"
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
                 :autocomplete="mode === 'login' ? 'current-password' : 'new-password'"
                 placeholder="请输入密码"
                 required
-                @input="error = ''"
+                @input="error = ''; demoNotice = ''"
               />
               <button
                 class="pw-toggle"
@@ -240,7 +268,8 @@ async function submit() {
             </div>
           </label>
           <p v-if="error" class="err" role="alert">{{ error }}</p>
-          <button class="submit" type="submit" :disabled="loading">
+          <p v-else-if="demoNotice" class="demo-notice" role="status">{{ demoNotice }}</p>
+          <button ref="submitBtnEl" class="submit" type="submit" :disabled="loading">
             {{ loading ? "请稍候…" : mode === "login" ? "进入学习" : "注册并进入" }}
           </button>
         </form>
@@ -253,6 +282,7 @@ async function submit() {
               :key="acc.username"
               type="button"
               class="demo-chip"
+              :class="{ active: selectedDemo === acc.username }"
               @click="fillDemo(acc)"
             >
               <b>{{ acc.display_name || acc.username }}</b>
@@ -326,7 +356,7 @@ async function submit() {
 .story-brand > div span {
   display: block;
   margin-top: 2px;
-  color: #9aa3c4;
+  color: #c4cce6;
   font-size: 12px;
 }
 .login-story h1 {
@@ -360,8 +390,8 @@ async function submit() {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: rgba(215, 243, 234, 0.12);
-  color: #d7f3ea;
+  background: rgba(215, 243, 234, 0.14);
+  color: #e6faf3;
   display: grid;
   place-items: center;
   font-size: 11px;
@@ -376,7 +406,7 @@ async function submit() {
 .story-points span {
   display: block;
   margin-top: 3px;
-  color: #9aa3c4;
+  color: #c4cce6;
   font-size: 12px;
   line-height: 1.55;
 }
@@ -393,7 +423,7 @@ async function submit() {
 }
 .story-course {
   margin-top: 2px;
-  color: #9aa3c4;
+  color: #c4cce6;
   font-size: 12px;
 }
 .zhizhi {
@@ -494,7 +524,7 @@ async function submit() {
   background: transparent;
   padding: 10px;
   border-radius: 11px;
-  color: #6b7290;
+  color: #4e5572;
   cursor: pointer;
   font-weight: 650;
   font-size: 14px;
@@ -519,7 +549,7 @@ async function submit() {
 }
 .optional {
   margin-left: 8px;
-  color: #9aa1b8;
+  color: #59617d;
   font-weight: 500;
   font-size: 12px;
 }
@@ -529,13 +559,11 @@ async function submit() {
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 15px;
-  outline: none;
   background: #fff;
   color: #20243a;
 }
 .form input:focus {
   border-color: #6658df;
-  box-shadow: 0 0 0 3px rgba(102, 88, 223, 0.14);
 }
 .pw-wrap {
   position: relative;
@@ -580,6 +608,12 @@ async function submit() {
   color: #a65c42;
   font-size: 13px;
 }
+.demo-notice {
+  margin: 0;
+  color: #463bb8;
+  font-size: 12px;
+  font-weight: 600;
+}
 .demo-box {
   margin-top: 22px;
   padding-top: 18px;
@@ -587,7 +621,7 @@ async function submit() {
 }
 .demo-title {
   font-size: 12px;
-  color: #8a91ab;
+  color: #59617d;
   margin-bottom: 10px;
 }
 .demo-row {
@@ -607,18 +641,24 @@ async function submit() {
   padding: 10px 12px;
   cursor: pointer;
   color: #20243a;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .demo-chip b {
   font-size: 13px;
   font-weight: 700;
 }
 .demo-chip small {
-  color: #8a91ab;
+  color: #59617d;
   font-size: 11px;
 }
 .demo-chip:hover {
   border-color: #cfc8f5;
   background: #f7f5ff;
+}
+.demo-chip.active {
+  border-color: #6658df;
+  background: #f2efff;
+  box-shadow: 0 0 0 2px rgba(102, 88, 223, 0.14);
 }
 
 @media (max-width: 900px) {

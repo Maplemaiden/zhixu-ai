@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../api";
 import { useSpeech } from "../composables/useSpeech";
+import { renderRichText } from "../utils/renderRichText";
 
 /** 课件设计稿尺寸（16:9），主舞台与缩略图按此等比缩放 */
 const SLIDE_W = 1280;
@@ -24,18 +25,36 @@ const stageScale = ref(1);
 /** 右侧缩略图：按实际槽宽 / 1280 算出的缩放比 */
 const thumbScale = ref(0.16);
 const lastCaption = ref("");
-const { speaking, currentLine, stop: stopSpeech, speakLines } = useSpeech();
+const fullAnswer = ref("");
+const captionExpanded = ref(false);
+const thumbWindowMax = ref(12);
+const { speaking, paused, currentLine, stop: stopSpeech, speakLines } = useSpeech();
 let advanceTimer = null;
 let stageRo = null;
 let thumbRo = null;
+let askSeq = 0;
 
 const slides = computed(() => props.deck?.slides || []);
 const slide = computed(() => slides.value[current.value] || null);
-const caption = computed(() => currentLine.value || lastCaption.value || "");
+const caption = computed(() => fullAnswer.value || currentLine.value || lastCaption.value || "");
+const canExpandCaption = computed(() => caption.value.length > 72 || caption.value.includes("\n"));
+
+function shouldLoadThumb(i) {
+  return i <= thumbWindowMax.value || Math.abs(i - current.value) <= 6;
+}
+
+function onThumbScroll(e) {
+  const el = e.target;
+  if (!el) return;
+  const ratio = (el.scrollTop + el.clientHeight * 2) / Math.max(1, el.scrollHeight);
+  const target = Math.ceil(slides.value.length * ratio) + 6;
+  if (target > thumbWindowMax.value) thumbWindowMax.value = Math.min(slides.value.length, target);
+}
 
 function emitSpeech() {
   emit("speech", {
     speaking: speaking.value,
+    paused: paused.value,
     line: currentLine.value || "",
   });
 }
@@ -65,6 +84,8 @@ function say(text) {
 }
 
 function narrateCurrent() {
+  fullAnswer.value = "";
+  captionExpanded.value = false;
   const lines = lectureLines(slide.value, current.value);
   if (!lines.length) return;
   speakLines(lines);
@@ -104,9 +125,14 @@ function fitThumbs() {
 
 function go(i) {
   if (i < 0 || i >= slides.value.length) return;
+  askSeq += 1;
+  askLoading.value = false;
   clearAdvance();
   current.value = i;
+  if (i + 8 > thumbWindowMax.value) thumbWindowMax.value = Math.min(slides.value.length, i + 8);
   lastCaption.value = "";
+  fullAnswer.value = "";
+  captionExpanded.value = false;
   narrateCurrent();
   scrollActiveThumb();
 }
@@ -155,6 +181,8 @@ function setMode(m) {
 async function quickAsk(kind) {
   const s = slide.value;
   if (!s) return;
+  fullAnswer.value = "";
+  captionExpanded.value = false;
   if (kind === "simplify") {
     say(s.simple || "我们换个说法：先抓住本页标题里的关键词，再对照页脚提示。");
     return;
@@ -178,18 +206,23 @@ async function sendAsk() {
   askInput.value = "";
 
   const s = slide.value;
+  // 仅当该页显式配置了预设口播字段时才走本地快捷答复；否则一律请求后端课程答疑，杜绝静默吞消息
   if (s) {
-    if (/没听懂|通俗|简单|再讲/.test(text)) {
+    if (/没听懂|通俗|简单|再讲/.test(text) && s.simple && String(s.simple).trim()) {
+      fullAnswer.value = String(s.simple).trim();
       say(s.simple);
       return;
     }
-    if (/例子|举例|案例/.test(text)) {
+    if (/例子|举例|案例/.test(text) && s.example && String(s.example).trim()) {
+      fullAnswer.value = String(s.example).trim();
       say(s.example);
       return;
     }
   }
 
+  const mySeq = ++askSeq;
   askLoading.value = true;
+  fullAnswer.value = "知知正在结合本页课件生成解答…";
   try {
     const spoken = pageNarrationText(s);
     const q = [
@@ -204,22 +237,31 @@ async function sendAsk() {
       section: 0,
       sectionLabel: `课件讲解 · ${s?.meta || ""}`,
     });
-    say(res.answer || res.text || "我这边暂时没有生成出回答，请换个问法，或进入知识点学习台。");
+    if (mySeq !== askSeq) return;
+    const ans = res.answer || res.text || "我这边暂时没有生成出回答，请换个问法，或进入知识点学习台。";
+    fullAnswer.value = ans;
+    captionExpanded.value = ans.length > 72;
+    say(String(ans).replace(/[#*`$]/g, " ").replace(/\s+/g, " ").slice(0, 360));
   } catch (e) {
-    say(
+    if (mySeq !== askSeq) return;
+    const fallback =
       (s?.simple || "先看本页要点。") +
-        `（在线答疑暂不可用：${e.message || "网络错误"}。）`
-    );
+      `（在线答疑暂不可用：${e.message || "网络错误"}。）`;
+    fullAnswer.value = fallback;
+    say(fallback);
   } finally {
-    askLoading.value = false;
+    if (mySeq === askSeq) askLoading.value = false;
   }
 }
 
 function bootDeck() {
   stopAuto();
   current.value = 0;
+  thumbWindowMax.value = 12;
   mode.value = "ppt";
   lastCaption.value = "";
+  fullAnswer.value = "";
+  captionExpanded.value = false;
   narrateCurrent();
   scrollActiveThumb();
   nextTick(() => {
@@ -235,6 +277,10 @@ watch(speaking, (now, prev) => {
   advanceTimer = setTimeout(() => {
     if (autoPlay.value && !speaking.value) advance();
   }, 700);
+});
+
+watch(paused, () => {
+  emitSpeech();
 });
 
 watch(currentLine, (v) => {
@@ -358,9 +404,23 @@ defineExpose({
             </div>
           </div>
 
-          <div class="caption-bar" :class="{ live: !!currentLine, empty: !caption }">
+          <div class="caption-bar" :class="{ live: !!currentLine, empty: !caption, expanded: captionExpanded }">
             <span class="caption-tag">知知</span>
-            <p class="caption-text">{{ caption || "点播放，听知知讲这一页" }}</p>
+            <div
+              v-if="caption"
+              class="caption-text"
+              :class="{ expanded: captionExpanded }"
+              v-html="renderRichText(caption, { math: true })"
+            />
+            <p v-else class="caption-text">点播放，听知知讲这一页</p>
+            <button
+              v-if="canExpandCaption"
+              type="button"
+              class="caption-toggle"
+              @click="captionExpanded = !captionExpanded"
+            >
+              {{ captionExpanded ? "收起" : "展开" }}
+            </button>
           </div>
 
           <div class="screen-bar">
@@ -381,7 +441,12 @@ defineExpose({
               <button type="button" class="chip" @click="quickAsk('example')">举个例子</button>
               <button type="button" class="chip" @click="quickAsk('quiz')">考我一下</button>
               <form class="ask-inline" @submit.prevent="sendAsk">
-                <input v-model="askInput" :disabled="askLoading" placeholder="提问本页…" />
+                <input
+                  v-model="askInput"
+                  :disabled="askLoading"
+                  placeholder="提问本页…"
+                  @keydown.enter="(e) => { if (e.isComposing || e.keyCode === 229) e.preventDefault(); }"
+                />
                 <button type="submit" :disabled="askLoading">{{ askLoading ? "…" : "问" }}</button>
               </form>
             </div>
@@ -389,7 +454,7 @@ defineExpose({
         </div>
       </section>
 
-      <aside class="thumb-rail" ref="thumbRail" aria-label="课件缩略图">
+      <aside class="thumb-rail" ref="thumbRail" aria-label="课件缩略图" @scroll.passive="onThumbScroll">
         <button
           v-for="(s, i) in slides"
           :key="i"
@@ -401,13 +466,14 @@ defineExpose({
           <span class="thumb-num">{{ String(i + 1).padStart(2, "0") }}</span>
           <div class="thumb-viewport">
             <img
-              v-if="s.image"
+              v-if="s.image && shouldLoadThumb(i)"
               class="thumb-photo"
               :src="s.image"
               :alt="s.title"
               loading="lazy"
               draggable="false"
             />
+            <div v-else-if="s.image" class="thumb-placeholder">{{ s.title || `第 ${i + 1} 页` }}</div>
             <div
               v-else
               class="slide-surface thumb-surface"
@@ -749,6 +815,46 @@ defineExpose({
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.caption-text.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.caption-text :deep(.md-p),
+.caption-text :deep(.md-h) {
+  margin: 0 0 4px;
+  color: inherit;
+}
+.caption-text :deep(.md-p:last-child) {
+  margin-bottom: 0;
+}
+.caption-text :deep(strong) {
+  color: #fff;
+}
+.caption-toggle {
+  flex: 0 0 auto;
+  border: 1px solid rgba(197, 237, 218, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #c5edda;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #1a2d3d;
+  color: #9bb5c4;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
 }
 
 .screen-bar {

@@ -1,4 +1,4 @@
-/** 在讲义 DOM 中按原文片段包裹高亮（尽量不破坏已有标签）。 */
+/** 在讲义 DOM 中按原文片段包裹高亮（兼容 KaTeX 公式节点与重复词多次标注）。 */
 
 const COLOR_CLASS = {
   amber: "hl-amber",
@@ -25,8 +25,8 @@ function collectTextNodes(root, { skipMarks = true } = {}) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-      // 渲染时要跳过旧高亮，避免重复包裹；提取 quote 时**不能跳过**，
-      // 否则在已有高亮上再划词，提取出的文字会缺失 → 被判为太短 → 浮层不出现。
+      // 跳过 KaTeX 无障碍隐藏的 MathML 树，防止提取出双份乱码或破坏公式内部结构
+      if (node.parentElement?.closest(".katex-mathml")) return NodeFilter.FILTER_REJECT;
       if (skipMarks && node.parentElement?.closest("mark.zhixu-hl")) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     },
@@ -39,12 +39,6 @@ function collectTextNodes(root, { skipMarks = true } = {}) {
   return nodes;
 }
 
-/**
- * 把文本节点拼成一整串，并建立两套索引：
- *   chars[i]  → joined 第 i 个字符来自哪个 {node, offset}（块级边界的虚拟空格为 null）
- *   map[k]    → norm 第 k 个字符对应 joined 的下标
- * norm 是 joined 做「连续空白压成一个空格」之后的版本，用于和 quote 比对。
- */
 function buildIndex(nodes) {
   let joined = "";
   const chars = [];
@@ -53,7 +47,6 @@ function buildIndex(nodes) {
   for (const node of nodes) {
     const block = node.parentElement?.closest(BLOCK_SEL) || node.parentElement;
     if (lastBlock && block !== lastBlock) {
-      // 跨块级元素：补一个虚拟空格，避免 "上一段末尾下一段开头" 粘在一起
       joined += " ";
       chars.push(null);
     }
@@ -84,19 +77,42 @@ function buildIndex(nodes) {
   return { joined, chars, norm, map };
 }
 
+function createMarkEl(note, part = "only") {
+  const mark = document.createElement("mark");
+  mark.className = `zhixu-hl ${COLOR_CLASS[note.color] || COLOR_CLASS.amber} hl-part-${part}`;
+  mark.dataset.noteId = note.id;
+  if (note.tag && (part === "last" || part === "only")) mark.dataset.tag = note.tag;
+  mark.title = [note.tag, note.remark].filter(Boolean).join(" · ") || "点击可编辑或删除标注";
+  return mark;
+}
+
+function wrapWholeElement(el, note, part = "only") {
+  if (!el?.parentNode) return;
+  const existing = el.closest(`mark.zhixu-hl[data-note-id="${note.id}"]`);
+  if (existing) {
+    if (note.tag && (part === "last" || part === "only")) existing.dataset.tag = note.tag;
+    return;
+  }
+  const mark = createMarkEl(note, part);
+  el.parentNode.insertBefore(mark, el);
+  mark.appendChild(el);
+}
+
 function wrapRangeInTextNode(textNode, start, end, note, part = "only") {
+  // 若该文本节点处于 KaTeX 公式内部，整块包裹最外层 .katex 节点，避免切碎公式 DOM 导致高亮不可见
+  const katexEl = textNode.parentElement?.closest?.(".katex");
+  if (katexEl) {
+    wrapWholeElement(katexEl, note, part);
+    return;
+  }
+
   const text = textNode.nodeValue;
   const before = text.slice(0, start);
   const mid = text.slice(start, end);
   const after = text.slice(end);
   if (!mid) return;
 
-  const mark = document.createElement("mark");
-  mark.className = `zhixu-hl ${COLOR_CLASS[note.color] || COLOR_CLASS.amber} hl-part-${part}`;
-  mark.dataset.noteId = note.id;
-  // 只有末尾那一片带标签，否则一次标注会在同一段里渲染出好几个「重点」徽章
-  if (note.tag && (part === "last" || part === "only")) mark.dataset.tag = note.tag;
-  mark.title = [note.tag, note.remark].filter(Boolean).join(" · ") || "我的高亮";
+  const mark = createMarkEl(note, part);
   mark.textContent = mid;
 
   const parent = textNode.parentNode;
@@ -107,12 +123,11 @@ function wrapRangeInTextNode(textNode, start, end, note, part = "only") {
   parent.replaceChild(frag, textNode);
 }
 
-/** 把 [startJoined, endJoined) 这个区间切成「同一文本节点内的连续段」 */
 function groupByNode(chars, startJoined, endJoined) {
   const groups = [];
   for (let i = startJoined; i < endJoined; i++) {
     const c = chars[i];
-    if (!c) continue; // 块级边界的虚拟空格
+    if (!c) continue;
     const last = groups[groups.length - 1];
     if (last && last.node === c.node && c.offset === last.end) {
       last.end = c.offset + 1;
@@ -123,14 +138,8 @@ function groupByNode(chars, startJoined, endJoined) {
   return groups;
 }
 
-/**
- * 从任意节点（元素或 DocumentFragment 包成的容器）提取「归一化文本」。
- * 归一化规则与 buildIndex 完全一致：块级边界补空格、连续空白压成单空格。
- * 保存标注时用它生成 quote，保证与渲染时的匹配逻辑同源，不会一边有空格一边没有。
- */
 export function extractText(node) {
   if (!node) return "";
-  // 提取 quote 时把已高亮的文字也算进来（skipMarks: false）
   const nodes = collectTextNodes(node, { skipMarks: false });
   if (!nodes.length) return "";
   return buildIndex(nodes).norm.trim();
@@ -149,20 +158,27 @@ export function applyHighlights(root, notes) {
     .slice()
     .sort((a, b) => (b.quote?.length || 0) - (a.quote?.length || 0));
 
+  const seenCountByQuote = new Map();
+
   for (const note of list) {
-    // 与保存时的归一化保持一致：连续空白压成一个空格
     const quoteNorm = note.quote.replace(/\s+/g, " ").trim();
     if (!quoteNorm) continue;
 
-    // 不跳过 mark：unwrapMarks 已清掉旧高亮，这里遇到的 mark 是同一次循环里
-    // 刚包上的。允许在其内部再包一层，重叠标注才能都显示出来
-    // （否则长的那条先包，短的那条文字被跳过 → 保存了却看不到）。
     const nodes = collectTextNodes(root, { skipMarks: false });
     if (!nodes.length) continue;
 
     const { chars, norm, map } = buildIndex(nodes);
-    let idx = norm.indexOf(quoteNorm);
+    const targetNth = seenCountByQuote.get(quoteNorm) || 0;
+    let searchFrom = 0;
+    let idx = -1;
+    for (let k = 0; k <= targetNth; k++) {
+      const found = norm.indexOf(quoteNorm, searchFrom);
+      if (found < 0) break;
+      idx = found;
+      searchFrom = found + Math.max(1, quoteNorm.length);
+    }
     if (idx < 0) continue;
+    seenCountByQuote.set(quoteNorm, targetNth + 1);
 
     const endIdx = idx + quoteNorm.length;
     const startJoined = map[idx];

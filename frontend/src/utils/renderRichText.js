@@ -133,6 +133,14 @@ function renderBlocks(text, { headingAs = "p", dropLeadingHeading = false } = {}
       continue;
     }
 
+    // ---- 已抽取的独立代码块占位符直接原样成块，不再包 <p> ----
+    if (/^\u0000SLOT\d+\u0000$/.test(trimmed)) {
+      closeList();
+      out.push(trimmed);
+      i += 1;
+      continue;
+    }
+
     // ---- 标题 1~6 级（必须 # 后有空格，避免把 #标签 当标题）----
     const h = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (h) {
@@ -192,21 +200,29 @@ function renderBlocks(text, { headingAs = "p", dropLeadingHeading = false } = {}
   return out.join("");
 }
 
-/** 抽出公式为占位符，交给块级渲染，最后回填 */
+/** 抽出代码块、行内代码与公式为占位符，交给块级渲染，最后回填（防止代码块内的 $ / ** 被误解析） */
 function withMath(text, render) {
   const slots = [];
   const push = (html) => {
-    const key = `\u0000MATH${slots.length}\u0000`;
+    const key = `\u0000SLOT${slots.length}\u0000`;
     slots.push(html);
     return key;
   };
-  let s = String(text);
+  let s = String(text).replace(/\r\n/g, "\n");
+  // 1. 先保护围栏代码块 ```...```
+  s = s.replace(/```([^\n]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    const cls = lang.trim() ? ` class="lang-${escapeHtml(lang.trim())}"` : "";
+    return push(`<pre class="md-pre"><code${cls}>${escapeHtml(code.replace(/\n$/, ""))}</code></pre>`);
+  });
+  // 2. 再保护行内代码 `...`
+  s = s.replace(/`([^`\n]+)`/g, (_, code) => push(`<code>${escapeHtml(code)}</code>`));
+  // 3. 再抽取公式
   s = s.replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => push(renderKatex(tex.trim(), true)));
   s = s.replace(/\$([^$\n]+?)\$/g, (_, tex) => push(renderKatex(tex.trim(), false)));
   s = s.replace(/\\\[([\s\S]+?)\\\]/g, (_, tex) => push(renderKatex(tex.trim(), true)));
   s = s.replace(/\\\((.+?)\\\)/g, (_, tex) => push(renderKatex(tex.trim(), false)));
   let html = render(s);
-  html = html.replace(/\u0000MATH(\d+)\u0000/g, (_, idx) => slots[Number(idx)] || "");
+  html = html.replace(/\u0000SLOT(\d+)\u0000/g, (_, idx) => slots[Number(idx)] || "");
   return html;
 }
 

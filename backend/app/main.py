@@ -15,10 +15,11 @@ app = FastAPI(
     description="课程助教：概述 / 期望值 / 决策树 / 贝叶斯 / 不确定型准则 + RAG 答疑 + 题库判分",
 )
 
+_origins = settings.cors_origin_list or ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origin_list or ["*"],
-    allow_credentials=True,
+    allow_origins=_origins,
+    allow_credentials="*" not in _origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

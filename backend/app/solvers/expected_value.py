@@ -18,8 +18,10 @@ class ExpectedValueInput(BaseModel):
     @field_validator("probs")
     @classmethod
     def probs_nonneg(cls, v: list[float]) -> list[float]:
-        if any(p < 0 for p in v):
-            raise ValueError("概率不能为负")
+        if any(not np.isfinite(p) for p in v):
+            raise ValueError("概率包含非法数值")
+        if any(p < 0 or p > 1 for p in v):
+            raise ValueError("概率须在 0 到 1 之间")
         return v
 
 
@@ -27,6 +29,7 @@ class ExpectedValueResult(BaseModel):
     expectations: dict[str, float]
     best: str
     best_value: float
+    all_equal: bool = False
     steps: list[dict[str, Any]]
     panel_markdown: str
     speak_lines: list[str]
@@ -45,6 +48,8 @@ def validate_shape(data: ExpectedValueInput) -> list[str]:
         for i, row in enumerate(data.payoffs):
             if len(row) != n_s:
                 errors.append(f"方案 {data.alternatives[i]} 的收益列数应为 {n_s}")
+            elif any(not np.isfinite(x) for x in row):
+                errors.append(f"方案 {data.alternatives[i]} 的收益包含非法数值")
     return errors
 
 
@@ -56,6 +61,8 @@ def solve(data: ExpectedValueInput) -> ExpectedValueResult:
     payoffs = np.asarray(data.payoffs, dtype=float)
     probs = np.asarray(data.probs, dtype=float)
     ev = payoffs @ probs
+    if not np.all(np.isfinite(ev)):
+        raise ValueError("收益数值过大导致计算溢出，请缩小数值范围")
     ev_rounded = [round(float(x), data.decimals) for x in ev]
 
     if data.sense == "min":
@@ -65,8 +72,9 @@ def solve(data: ExpectedValueInput) -> ExpectedValueResult:
         best_idx = int(np.argmax(ev))
         rule = "收益期望最大"
 
+    all_equal = len(data.alternatives) > 1 and (float(ev.max() - ev.min()) <= 1e-12)
     expectations = {a: ev_rounded[i] for i, a in enumerate(data.alternatives)}
-    best = data.alternatives[best_idx]
+    best = "" if all_equal else data.alternatives[best_idx]
     best_value = ev_rounded[best_idx]
 
     # 分步展示（模板插值，供前端 panel / 数字人 speak）
@@ -112,7 +120,11 @@ def solve(data: ExpectedValueInput) -> ExpectedValueResult:
         "",
         "### 步骤 3：决策",
         f"- 决策规则：{rule}",
-        f"- **最优方案：{best}（期望值 {best_value}）**",
+        (
+            f"- **各方案期望值完全相同（{best_value}），无差异，无法确定唯一最优方案。**"
+            if all_equal
+            else f"- **最优方案：{best}（期望值 {best_value}）**"
+        ),
         "",
         "> 数值由程序计算，不依赖大模型。",
     ]
@@ -123,13 +135,18 @@ def solve(data: ExpectedValueInput) -> ExpectedValueResult:
         "第二步，用收益乘以对应概率再求和，得到每个方案的期望值。"
         + "；".join(f"{k}为{v}" for k, v in expectations.items())
         + "。",
-        f"第三步，按{rule}，选择方案{best}，其期望值为{best_value}。",
+        (
+            f"第三步，各方案期望值均为{best_value}，无差异，无法确定唯一最优方案。"
+            if all_equal
+            else f"第三步，按{rule}，选择方案{best}，其期望值为{best_value}。"
+        ),
     ]
 
     return ExpectedValueResult(
         expectations=expectations,
         best=best,
         best_value=best_value,
+        all_equal=all_equal,
         steps=steps,
         panel_markdown="\n".join(panel),
         speak_lines=speak,

@@ -20,6 +20,13 @@ const error = ref("");
 const messages = ref([]);
 const logEl = ref(null);
 const inputEl = ref(null);
+let askAbort = null;
+let askReqId = 0;
+
+function formatSourceItem(s) {
+  const cleanTitle = String(s?.title || "").replace(/^#+\s*/, "").trim();
+  return `${s?.source || ""}${cleanTitle ? " · " + cleanTitle : ""}`;
+}
 
 const catalogGroups = computed(() =>
   chapters
@@ -78,6 +85,16 @@ function useSuggestion(q) {
 }
 
 function clearChat() {
+  askReqId += 1;
+  if (askAbort) {
+    try {
+      askAbort.abort();
+    } catch {
+      /* ignore */
+    }
+    askAbort = null;
+  }
+  loading.value = false;
   messages.value = [];
   error.value = "";
   stop();
@@ -85,7 +102,14 @@ function clearChat() {
 
 async function send() {
   const q = input.value.trim();
-  if (!q || loading.value) return;
+  if (!q || loading.value || !props.backendOk) return;
+  const myId = ++askReqId;
+  const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  askAbort = ctrl;
+  const history = messages.value
+    .filter((m) => (m.role === "user" || m.role === "assistant") && m.topic !== "系统")
+    .slice(-6)
+    .map((m) => ({ role: m.role, text: m.text }));
   loading.value = true;
   error.value = "";
   messages.value.push({ role: "user", text: q });
@@ -95,7 +119,10 @@ async function send() {
     const res = await api.ask(q, "course", {
       section: null,
       sectionLabel: "全课答疑",
+      history,
+      signal: ctrl?.signal,
     });
+    if (myId !== askReqId) return;
     const answer = res.answer || "暂时没有生成回答，请换个问法再试。";
     messages.value.push({
       role: "assistant",
@@ -103,8 +130,9 @@ async function send() {
       sources: res.sources || [],
       topic: "知知",
     });
-    speakText(String(answer).replace(/\s+/g, " ").slice(0, 360));
+    speakText(String(answer).replace(/[#*`$]/g, " ").replace(/\s+/g, " ").slice(0, 360));
   } catch (e) {
+    if (myId !== askReqId || e?.name === "AbortError") return;
     error.value = e.message || String(e);
     messages.value.push({
       role: "assistant",
@@ -112,12 +140,16 @@ async function send() {
       topic: "系统",
     });
   } finally {
-    loading.value = false;
-    await scrollBottom();
+    if (myId === askReqId) {
+      loading.value = false;
+      askAbort = null;
+      await scrollBottom();
+    }
   }
 }
 
 function onKeydown(e) {
+  if (e.isComposing || e.keyCode === 229) return;
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     send();
@@ -154,8 +186,17 @@ onMounted(() => {
 });
 onUnmounted(() => {
   if (rollTimer) clearInterval(rollTimer);
+  if (askAbort) {
+    try {
+      askAbort.abort();
+    } catch {
+      /* ignore */
+    }
+  }
   stop();
 });
+
+defineExpose({ clearChat });
 </script>
 
 <template>
@@ -168,7 +209,7 @@ onUnmounted(() => {
             <p>《决策理论与方法》全课答疑 · 可从右侧进知识点</p>
           </div>
           <div class="ask-chat-links">
-            <button class="linkish" type="button" :disabled="!messages.length" @click="clearChat">清空</button>
+            <button class="linkish" type="button" :disabled="!messages.length && !loading" @click="clearChat">清空</button>
             <button class="linkish" type="button" @click="emit('back')">回首页</button>
           </div>
         </header>
@@ -208,7 +249,7 @@ onUnmounted(() => {
               <div v-if="m.sources?.length" class="bubble-sources">
                 教材来源：
                 <span v-for="(s, si) in m.sources" :key="si">
-                  {{ s.source }}{{ s.title ? " · " + s.title : "" }}
+                  {{ formatSourceItem(s) }}{{ si < m.sources.length - 1 ? "；" : "" }}
                 </span>
               </div>
             </div>

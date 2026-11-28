@@ -1,4 +1,6 @@
 <script setup>
+import { renderRichText } from "../utils/renderRichText";
+
 defineProps({
   speaking: { type: Boolean, default: false },
   paused: { type: Boolean, default: false },
@@ -54,7 +56,10 @@ defineEmits(["play", "pause", "resume", "stop", "prev", "next"]);
       </div>
     </div>
 
-    <div class="speechbubble">{{ line || "知知" }}</div>
+    <div
+      class="speechbubble"
+      v-html="renderRichText(line || '知知', { math: true })"
+    />
   </aside>
 </template>
 
@@ -262,6 +267,22 @@ defineEmits(["play", "pause", "resume", "stop", "prev", "next"]);
   line-height: 1.7;
   margin-top: 12px;
   min-height: 64px;
+  word-break: break-word;
+}
+.speechbubble :deep(.md-p) {
+  margin: 0 0 6px;
+}
+.speechbubble :deep(.md-p:last-child) {
+  margin-bottom: 0;
+}
+.speechbubble :deep(.md-ul),
+.speechbubble :deep(.md-ol) {
+  margin: 4px 0;
+  padding-left: 1.2em;
+}
+.speechbubble :deep(.katex-display) {
+  margin: 6px 0;
+  overflow-x: auto;
 }
 
 .avatar-panel.compact {

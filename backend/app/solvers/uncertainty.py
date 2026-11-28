@@ -25,6 +25,7 @@ class UncertaintyResult(BaseModel):
     scores: dict[str, float]
     best: str
     best_value: float
+    all_equal: bool = False
     steps: list[dict[str, Any]]
     panel_markdown: str
     speak_lines: list[str]
@@ -46,6 +47,10 @@ def _validate(data: UncertaintyInput) -> None:
     for i, row in enumerate(data.payoffs):
         if len(row) != n_s:
             raise ValueError(f"方案 {data.alternatives[i]} 列数与状态数不一致")
+        if any(not np.isfinite(x) for x in row):
+            raise ValueError(f"方案 {data.alternatives[i]} 的收益包含非法数值")
+    if not np.isfinite(data.alpha):
+        raise ValueError("折中系数 α 非法")
 
 
 def solve(data: UncertaintyInput) -> UncertaintyResult:
@@ -60,16 +65,12 @@ def solve(data: UncertaintyInput) -> UncertaintyResult:
     if data.criterion == "optimistic":
         # 收益：每行取 max，再取最大；损失：每行取 min，再取最小
         row = m.max(axis=1) if is_gain else m.min(axis=1)
-        for i, a in enumerate(alts):
-            scores[a] = round(float(row[i]), data.decimals)
-            detail_lines.append(f"{a} 的极端值 = {scores[a]}")
+        label = "极端值"
         best_idx = int(np.argmax(row) if is_gain else np.argmin(row))
 
     elif data.criterion == "pessimistic":
         row = m.min(axis=1) if is_gain else m.max(axis=1)
-        for i, a in enumerate(alts):
-            scores[a] = round(float(row[i]), data.decimals)
-            detail_lines.append(f"{a} 的保守值 = {scores[a]}")
+        label = "保守值"
         best_idx = int(np.argmax(row) if is_gain else np.argmin(row))
 
     elif data.criterion == "hurwicz":
@@ -78,9 +79,7 @@ def solve(data: UncertaintyInput) -> UncertaintyResult:
             row = alpha * m.max(axis=1) + (1 - alpha) * m.min(axis=1)
         else:
             row = alpha * m.min(axis=1) + (1 - alpha) * m.max(axis=1)
-        for i, a in enumerate(alts):
-            scores[a] = round(float(row[i]), data.decimals)
-            detail_lines.append(f"{a} 折中值(α={alpha}) = {scores[a]}")
+        label = f"折中值(α={alpha})"
         best_idx = int(np.argmax(row) if is_gain else np.argmin(row))
 
     elif data.criterion == "regret":
@@ -91,22 +90,30 @@ def solve(data: UncertaintyInput) -> UncertaintyResult:
             ideal = m.min(axis=0)
             regret = m - ideal
         row = regret.max(axis=1)
-        for i, a in enumerate(alts):
-            scores[a] = round(float(row[i]), data.decimals)
-            detail_lines.append(f"{a} 的最大后悔值 = {scores[a]}")
+        label = "最大后悔值"
         best_idx = int(np.argmin(row))
 
     elif data.criterion == "laplace":
         row = m.mean(axis=1)
-        for i, a in enumerate(alts):
-            scores[a] = round(float(row[i]), data.decimals)
-            detail_lines.append(f"{a} 的等概率均值 = {scores[a]}")
+        label = "等概率均值"
         best_idx = int(np.argmax(row) if is_gain else np.argmin(row))
     else:
         raise ValueError("未知准则")
 
-    best = alts[best_idx]
-    best_value = scores[best]
+    if not np.all(np.isfinite(row)):
+        raise ValueError("收益数值过大导致计算溢出，请缩小数值范围")
+
+    for i, a in enumerate(alts):
+        scores[a] = round(float(row[i]), data.decimals)
+        detail_lines.append(
+            f"{a} {label} = {scores[a]}"
+            if data.criterion == "hurwicz"
+            else f"{a} 的{label} = {scores[a]}"
+        )
+
+    all_equal = len(alts) > 1 and (float(row.max() - row.min()) <= 1e-12)
+    best = "" if all_equal else alts[best_idx]
+    best_value = scores[alts[best_idx]]
     name = NAMES[data.criterion]
 
     panel = [
@@ -120,7 +127,11 @@ def solve(data: UncertaintyInput) -> UncertaintyResult:
         *[f"- {x}" for x in detail_lines],
         "",
         "### 步骤 3：决策",
-        f"- **最优方案：{best}（指标值 {best_value}）**",
+        (
+            f"- **各方案指标值完全相同（{best_value}），无差异，无法确定唯一最优方案。**"
+            if all_equal
+            else f"- **最优方案：{best}（指标值 {best_value}）**"
+        ),
         "",
         "> 数值由程序计算；不同准则可能选出不同方案，这与决策者风险态度有关。",
     ]
@@ -128,7 +139,11 @@ def solve(data: UncertaintyInput) -> UncertaintyResult:
         f"下面用{name}处理这道不确定型决策题。",
         "第一步，列出各方案在不同自然状态下的收益，注意此时概率未知。",
         "第二步，" + "；".join(detail_lines) + "。",
-        f"第三步，按该准则选择方案{best}。",
+        (
+            f"第三步，各方案指标值均为{best_value}，无差异，无法确定唯一最优方案。"
+            if all_equal
+            else f"第三步，按该准则选择方案{best}。"
+        ),
     ]
 
     return UncertaintyResult(
@@ -137,10 +152,11 @@ def solve(data: UncertaintyInput) -> UncertaintyResult:
         scores=scores,
         best=best,
         best_value=best_value,
+        all_equal=all_equal,
         steps=[
             {"id": 1, "name": "列出收益表", "values": {"alternatives": alts, "states": data.states}},
             {"id": 2, "name": "按准则计算", "values": {"scores": scores, "details": detail_lines}},
-            {"id": 3, "name": "选优", "values": {"best": best, "best_value": best_value}},
+            {"id": 3, "name": "选优", "values": {"best": best, "best_value": best_value, "all_equal": all_equal}},
         ],
         panel_markdown="\n".join(panel),
         speak_lines=speak,

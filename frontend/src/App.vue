@@ -3,7 +3,15 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { api } from "./api";
 import { useAuth } from "./composables/useAuth";
 import { useSpeech } from "./composables/useSpeech";
-import { addWrong, numLearned, saveProgress, store, wrongFor } from "./composables/useStore";
+import {
+  addWrong,
+  numLearned,
+  recordQuizAnswer,
+  saveProgress,
+  store,
+  switchStoreUser,
+  wrongFor,
+} from "./composables/useStore";
 import AskSpace from "./components/AskSpace.vue";
 import AvatarPanel from "./components/AvatarPanel.vue";
 import CaseLab from "./components/CaseLab.vue";
@@ -32,6 +40,7 @@ const search = ref("");
 const activeTopicId = ref("lecture_ch2");
 const section = ref(0);
 const caseIndex = ref(0);
+const labSessionNonce = ref(0);
 const reviewTab = ref("summary");
 const topicNotes = ref([]);
 const allNotes = ref([]);
@@ -64,6 +73,17 @@ function toggleSidebar() {
 const health = ref(null);
 const question = ref("");
 const askInputEl = ref(null);
+const askSpaceRef = ref(null);
+let topicLoadSeq = 0;
+let suppressHashSync = false;
+let initializedSessionFor = "";
+let pendingPresetQuestion = "";
+const pendingScrollNote = ref(null);
+
+function formatSourceItem(s) {
+  const cleanTitle = String(s?.title || "").replace(/^[\ufeff\s]*#+\s*/, "").trim();
+  return `${s?.source || ""}${cleanTitle ? " · " + cleanTitle : ""}`;
+}
 
 const defaultHint = {
   goal: "按本知识点步骤卡听讲，再做案例与练习。",
@@ -209,7 +229,26 @@ const methodHints = {
 const askLoading = ref(false);
 const askResult = ref(null);
 const askError = ref("");
-const chat = ref([]);
+const chatsByTopic = ref({});
+const chat = computed(() => chatsByTopic.value[activeTopicId.value] || []);
+
+function pushTopicChat(topicId, entry) {
+  const prev = chatsByTopic.value[topicId] || [];
+  chatsByTopic.value = {
+    ...chatsByTopic.value,
+    [topicId]: [...prev, entry],
+  };
+}
+
+function popLastUserChat(topicId, text) {
+  const prev = chatsByTopic.value[topicId] || [];
+  if (prev.length && prev[prev.length - 1].role === "user" && prev[prev.length - 1].text === text) {
+    chatsByTopic.value = {
+      ...chatsByTopic.value,
+      [topicId]: prev.slice(0, -1),
+    };
+  }
+}
 
 const computeResult = ref(null);
 const computeLoading = ref(false);
@@ -239,6 +278,7 @@ let heroObserver = null;
 /** 课件页口播状态（供浮层知知同步） */
 const pptRef = ref(null);
 const classroomSpeaking = ref(false);
+const classroomPaused = ref(false);
 const classroomLine = ref("");
 
 const QUIZ_SECTION = 2;
@@ -271,9 +311,7 @@ function lectureProgress(topicId) {
   const p = store.progress[topicId];
   if (!p) return 0;
   const answered = Math.max(0, Number(p.answered) || 0);
-  const total = Math.max(1, Number(p.quizTotal) || (choiceQuizzes.value.length || 8));
-  // 单调递增：看过讲解 10%，进做题未答 15%，之后按答题数累加到 100。
-  // 旧实现 0 题返回 40、答 1 题变 39，出现「越学越少」的回退。
+  const total = Math.max(1, Number(p.quizTotal) || 8);
   const base = p.section >= QUIZ_SECTION ? 20 : p.section >= LAB_SECTION ? 15 : 10;
   if (answered <= 0) return base;
   return Math.min(100, Math.round(base + (answered / total) * (100 - base)));
@@ -445,8 +483,10 @@ watch(
     document.body.style.overflow = lock ? "hidden" : "";
     if (v !== "classroom") {
       classroomSpeaking.value = false;
+      classroomPaused.value = false;
       classroomLine.value = "";
     }
+    syncHashFromState();
   },
   { immediate: true }
 );
@@ -532,10 +572,7 @@ const coach = computed(() => {
     now: `正在学：${title} · 做题答疑`,
     tip: "做题检验掌握；不会的就在本页追问，不必跳来跳去。",
     primary: backLab,
-    secondary: [
-      { label: "返回讲解", run: "teach" },
-      { label: "追问本题", run: "ask" },
-    ],
+    secondary: [{ label: "返回讲解", run: "teach" }],
   };
 });
 const caseAskPreset = computed(() => {
@@ -543,7 +580,11 @@ const caseAskPreset = computed(() => {
   if (!c) return "";
   const title = caseBrief.value?.title || c.title;
   if (isWalkthroughCase.value) {
-    return `请结合当前案例「${title}」说明：它分别对应决策六要素里的哪些项？自然状态和行动方案在本例中是什么？`;
+    if (methodId.value === "overview_elements" || methodId.value === "decision_overview") {
+      return `请结合当前案例「${title}」说明：它分别对应决策六要素里的哪些项？自然状态和行动方案在本例中是什么？`;
+    }
+    const topicName = current.value?.chapter?.title || current.value?.topic?.title || "本讲";
+    return `请结合当前案例「${title}」说明：它体现了「${topicName}」里的哪些核心规则与关键结论？`;
   }
   if (computeResult.value?.best) {
     return `刚才程序验算最优方案是「${computeResult.value.best}」，请按教材符号说明为什么是它。结合案例：${title}`;
@@ -601,6 +642,16 @@ async function createLessonNote(payload) {
   return data.item;
 }
 
+async function updateLessonNote(id, payload) {
+  const data = await api.updateNote(id, payload);
+  const updated = data.item;
+  if (updated) {
+    topicNotes.value = topicNotes.value.map((n) => (n.id === id ? updated : n));
+    allNotes.value = allNotes.value.map((n) => (n.id === id ? updated : n));
+  }
+  return updated;
+}
+
 async function removeNote(id) {
   await api.deleteNote(id);
   topicNotes.value = topicNotes.value.filter((n) => n.id !== id);
@@ -608,27 +659,72 @@ async function removeNote(id) {
 }
 
 function noteTopicTitle(methodOrTopicId) {
-  const byId = findTopic(methodOrTopicId);
-  if (byId) return byId.topic.title;
-  const hit = readyTopics().find((t) => t.methodId === methodOrTopicId || t.id === methodOrTopicId);
-  return hit?.title || methodOrTopicId;
+  const resolved = resolveTopicRef(methodOrTopicId);
+  if (resolved?.topic?.title) return resolved.topic.title;
+  return methodOrTopicId;
+}
+
+function scrollToPendingNote() {
+  const target = pendingScrollNote.value;
+  if (!target) return;
+  pendingScrollNote.value = null;
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const mark =
+          document.querySelector(`mark.zhixu-hl[data-note-id="${target.id}"]`) ||
+          document.querySelector(`[data-section-index="${target.section_index ?? 0}"]`);
+        if (mark) {
+          mark.scrollIntoView({ behavior: "auto", block: "center" });
+          if (mark.classList?.contains("zhixu-hl")) {
+            mark.classList.add("hl-flash");
+            setTimeout(() => mark.classList.remove("hl-flash"), 1800);
+          }
+        }
+      }, 120);
+    });
+  });
 }
 
 function openNoteTarget(note) {
-  const byId = findTopic(note.method_id);
-  if (byId) {
-    openTopic(byId.topic.id, { section: 0 });
-    return;
+  const resolved = resolveTopicRef(note.method_id);
+  const targetId = resolved?.topic?.id;
+  if (!targetId) return;
+  pendingScrollNote.value = note;
+  const sameTopic = activeTopicId.value === targetId;
+  openTopic(targetId, { section: 0, skipScrollTop: true });
+  if (sameTopic) {
+    scrollToPendingNote();
   }
-  const hit = readyTopics().find((t) => t.methodId === note.method_id || t.id === note.method_id);
-  if (hit) openTopic(hit.id, { section: 0 });
+}
+
+function clearTransientSessionState() {
+  topicNotes.value = [];
+  allNotes.value = [];
+  chatsByTopic.value = {};
+  askSpaceRef.value?.clearChat?.();
+  labSessionNonce.value += 1;
+  section.value = 0;
+  caseIndex.value = 0;
+  quizIndex.value = 0;
+  quizDone.value = false;
+  quizHint.value = "";
+  quizChoice.value = null;
+  quizChecked.value = false;
+  quizFeedback.value = null;
+  askResult.value = null;
+  askError.value = "";
+  question.value = "";
 }
 
 async function handleLogout() {
   stop();
+  if (typeof window !== "undefined") {
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
   await logout();
-  topicNotes.value = [];
-  allNotes.value = [];
+  switchStoreUser("");
+  clearTransientSessionState();
   view.value = "home";
 }
 
@@ -641,11 +737,13 @@ function teardownHeroObserver() {
 
 function setupHeroObserver() {
   teardownHeroObserver();
-  if (view.value !== "home" || !heroArtEl.value) {
+  if (view.value !== "home") {
     heroZhizhiInView.value = false;
     return;
   }
+  // 首页挂载初期默认认为主形象在视口中，防止登录后一瞬间右下角浮层闪烁到屏幕中间
   heroZhizhiInView.value = true;
+  if (!heroArtEl.value || typeof IntersectionObserver === "undefined") return;
   heroObserver = new IntersectionObserver(
     ([entry]) => {
       heroZhizhiInView.value = !!entry?.isIntersecting;
@@ -688,8 +786,9 @@ const spiritFloatVisible = computed(() => {
   return true;
 });
 
-function onClassroomSpeech({ speaking: sp, line } = {}) {
+function onClassroomSpeech({ speaking: sp, paused: pa, line } = {}) {
   classroomSpeaking.value = !!sp;
+  classroomPaused.value = !!pa;
   classroomLine.value = line || "";
 }
 
@@ -697,37 +796,108 @@ function stopSpiritExternal() {
   if (view.value === "classroom") {
     pptRef.value?.stopAll?.();
     classroomSpeaking.value = false;
+    classroomPaused.value = false;
     classroomLine.value = "";
     return;
   }
   stop();
 }
 
+function syncHashFromState() {
+  if (suppressHashSync || typeof window === "undefined" || !isLoggedIn.value) return;
+  let targetHash = `#${view.value}`;
+  if (view.value === "lesson") {
+    targetHash = `#lesson/${activeTopicId.value}/${section.value}`;
+  } else if (view.value === "classroom") {
+    targetHash = `#classroom/${classroomChapterId.value}`;
+  } else if (view.value === "review") {
+    targetHash = `#review/${reviewTab.value}`;
+  }
+  if (window.location.hash !== targetHash) {
+    if (!window.location.hash) {
+      window.history.replaceState(null, "", targetHash);
+    } else {
+      window.history.pushState(null, "", targetHash);
+    }
+  }
+}
+
+function applyStateFromHash() {
+  if (typeof window === "undefined" || !isLoggedIn.value) return;
+  const raw = window.location.hash.replace(/^#\/?/, "").trim();
+  if (!raw) return;
+  const parts = raw.split("/");
+  suppressHashSync = true;
+  try {
+    const head = parts[0];
+    if (head === "lesson") {
+      const tid = resolveReadyTopicId(parts[1] || store.lastTopicId);
+      const sec = parts[2] != null ? clampSection(parts[2]) : 0;
+      openTopic(tid, { section: sec });
+    } else if (head === "classroom" && parts[1] && hasLectureDeck(parts[1])) {
+      openClassroom(parts[1]);
+    } else if (head === "review") {
+      if (parts[1] && ["summary", "wrong", "notes"].includes(parts[1])) {
+        reviewTab.value = parts[1];
+      }
+      go("review");
+    } else if (["home", "catalog", "qa"].includes(head)) {
+      if (head === "qa") openQaSpace();
+      else go(head);
+    }
+  } finally {
+    suppressHashSync = false;
+  }
+}
+
+async function initAuthenticatedSession() {
+  const uid = user.value?.id ? String(user.value.id) : "";
+  if (!uid || initializedSessionFor === uid) return;
+  initializedSessionFor = uid;
+  switchStoreUser(uid);
+  clearTransientSessionState();
+  try {
+    health.value = await api.health();
+  } catch {
+    health.value = null;
+  }
+  store.lastTopicId = resolveReadyTopicId(store.lastTopicId);
+  const prevTopic = activeTopicId.value;
+  const nextTopic = resolveReadyTopicId(store.lastTopicId);
+  activeTopicId.value = nextTopic;
+  if (prevTopic === nextTopic) {
+    await loadTopicAssets();
+    restoreTopicProgress();
+  }
+  await refreshAllNotes();
+  applyStateFromHash();
+  syncHashFromState();
+  await nextTick();
+  setupHeroObserver();
+}
+
 onMounted(async () => {
+  window.addEventListener("hashchange", applyStateFromHash);
+  window.addEventListener("popstate", applyStateFromHash);
   await bootstrap();
   try {
     health.value = await api.health();
-  } catch (e) {
+  } catch {
     health.value = null;
   }
   if (isLoggedIn.value) {
-    store.lastTopicId = resolveReadyTopicId(store.lastTopicId);
-    activeTopicId.value = resolveReadyTopicId(activeTopicId.value || store.lastTopicId);
-    await loadTopicAssets();
-    restoreTopicProgress();
-    await refreshAllNotes();
-    await nextTick();
-    setupHeroObserver();
+    await initAuthenticatedSession();
   }
 });
 onUnmounted(() => {
+  window.removeEventListener("hashchange", applyStateFromHash);
+  window.removeEventListener("popstate", applyStateFromHash);
   teardownHeroObserver();
   stop();
 });
 
 watch(activeTopicId, async () => {
   const topicAtStart = activeTopicId.value;
-  // 先定目标段，避免 await 期间用户点了「实验台」后又被重置回讲解
   const desired =
     pendingSection.value != null ? clampSection(pendingSection.value) : 0;
   pendingSection.value = null;
@@ -737,54 +907,63 @@ watch(activeTopicId, async () => {
   quizChoice.value = null;
   quizChecked.value = false;
   quizFeedback.value = null;
+  quizDone.value = false;
+  quizHint.value = "";
   computeResult.value = null;
   caseBrief.value = null;
   computeError.value = "";
+  askResult.value = null;
+  askError.value = "";
+  stepCard.value = null;
+  quizItems.value = [];
+  lessonReading.value = [];
+  lessonReadingSource.value = "";
+  topicNotes.value = [];
+  question.value = pendingPresetQuestion || "";
+  pendingPresetQuestion = "";
   stop();
 
   section.value = desired;
   askOpen.value = desired === QUIZ_SECTION;
-  scrollLessonTop();
+  if (!pendingScrollNote.value) scrollLessonTop();
+  syncHashFromState();
 
   await loadTopicAssets();
   if (activeTopicId.value !== topicAtStart) return;
 
   restoreTopicProgress();
-  // 加载期间若用户已手动切段，尊重用户选择，不再强制打回 desired/0
   if (section.value === desired) {
     askOpen.value = desired === QUIZ_SECTION;
     persistLesson(activeTopicId.value, desired);
   }
+  if (pendingScrollNote.value) scrollToPendingNote();
 });
 
-watch([section, caseIndex], () => {
+watch([section, caseIndex, reviewTab], () => {
   if (topicReady.value) persistLesson(activeTopicId.value);
+  syncHashFromState();
 });
 
 watch(view, async (v) => {
-  if (v === "lesson") scrollLessonTop();
+  if (v === "lesson" && !pendingScrollNote.value) scrollLessonTop();
   await nextTick();
   setupHeroObserver();
 });
 
-watch(isLoggedIn, async (ok) => {
-  if (!ok) {
-    teardownHeroObserver();
-    return;
+watch(
+  () => user.value?.id,
+  async (uid) => {
+    if (!uid) {
+      initializedSessionFor = "";
+      switchStoreUser("");
+      teardownHeroObserver();
+      return;
+    }
+    if (isLoggedIn.value) {
+      await initAuthenticatedSession();
+    }
   }
-  try {
-    health.value = await api.health();
-  } catch {
-    health.value = null;
-  }
-  store.lastTopicId = resolveReadyTopicId(store.lastTopicId);
-  activeTopicId.value = resolveReadyTopicId(activeTopicId.value || store.lastTopicId);
-  await loadTopicAssets();
-  restoreTopicProgress();
-  await refreshAllNotes();
-  await nextTick();
-  setupHeroObserver();
-});
+);
 
 function scrollLessonTop() {
   nextTick(() => {
@@ -799,47 +978,44 @@ function scrollLessonTop() {
 function restoreTopicProgress() {
   const p = store.progress[activeTopicId.value];
   if (p) {
-    // 只恢复案例情境；讲解/做题由本次进入意图决定
     caseIndex.value = p.caseIndex ?? 0;
+  } else {
+    caseIndex.value = 0;
   }
 }
 
 async function loadTopicAssets() {
+  const mySeq = ++topicLoadSeq;
   if (!topicReady.value) {
     stepCard.value = null;
     quizItems.value = [];
     lessonReading.value = [];
     lessonReadingSource.value = "";
+    topicNotes.value = [];
     return;
   }
   const mid = methodId.value;
-  try {
-    const sc = await api.stepCard(mid);
-    stepCard.value = sc.card;
-  } catch {
-    stepCard.value = null;
-  }
-  try {
-    const bank = await api.listQuiz(bankId.value);
-    quizItems.value = bank.items || [];
-  } catch {
-    quizItems.value = [];
-  }
-  try {
-    const reading = await api.lessonReading(mid);
-    lessonReading.value = reading.sections || [];
-    lessonReadingSource.value = reading.source || "";
-  } catch {
-    lessonReading.value = [];
-    lessonReadingSource.value = "";
-  }
-  await refreshTopicNotes();
+  const bid = bankId.value;
+  const [scRes, bankRes, readingRes, notesRes] = await Promise.all([
+    api.stepCard(mid).catch(() => null),
+    api.listQuiz(bid).catch(() => null),
+    api.lessonReading(mid).catch(() => null),
+    isLoggedIn.value ? api.listNotes(mid).catch(() => null) : Promise.resolve(null),
+  ]);
+  // 防止快速切讲时旧讲慢响应覆盖当前讲内容
+  if (mySeq !== topicLoadSeq || methodId.value !== mid) return;
+  stepCard.value = scRes?.card || null;
+  quizItems.value = bankRes?.items || [];
+  lessonReading.value = readingRes?.sections || [];
+  lessonReadingSource.value = readingRes?.source || "";
+  topicNotes.value = notesRes?.items || [];
 }
 
 function go(v) {
   view.value = v;
   if (v !== "lesson") askOpen.value = false;
   if (v === "review") refreshAllNotes();
+  scrollLessonTop();
   stop();
 }
 
@@ -866,9 +1042,17 @@ function submitHomeAsk() {
 }
 
 function onHomeAskKeydown(e) {
+  if (e.isComposing || e.keyCode === 229) return;
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     submitHomeAsk();
+  }
+}
+function onLessonAskKeydown(e) {
+  if (e.isComposing || e.keyCode === 229) return;
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    doAsk();
   }
 }
 function openTopic(id, opts = {}) {
@@ -879,12 +1063,14 @@ function openTopic(id, opts = {}) {
   if (opts.ask) pendingSection.value = QUIZ_SECTION;
   else if (opts.section != null) pendingSection.value = clampSection(opts.section);
   else if (opts.resume) {
-    // 「继续学习」：按上次停留的环节恢复，而不是一律回讲解
     const prev = store.progress[topicId];
     pendingSection.value = clampSection(prev?.section ?? 0);
   } else pendingSection.value = 0;
   askOpen.value = !!opts.ask;
-  if (opts.question) question.value = opts.question;
+  if (opts.question) {
+    if (same) question.value = opts.question;
+    else pendingPresetQuestion = opts.question;
+  }
   activeTopicId.value = topicId;
   view.value = "lesson";
   if (same) {
@@ -892,7 +1078,7 @@ function openTopic(id, opts = {}) {
     pendingSection.value = null;
     if (section.value === QUIZ_SECTION) askOpen.value = true;
     persistLesson(topicId);
-    scrollLessonTop();
+    if (!opts.skipScrollTop) scrollLessonTop();
   } else {
     persistLesson(topicId, askOpen.value ? QUIZ_SECTION : clampSection(opts.section ?? 0));
   }
@@ -1011,6 +1197,16 @@ function changeCase() {
   caseBrief.value = null;
   computeError.value = "";
 }
+function selectCase(idx) {
+  const n = topicCases.value.length;
+  if (!n) return;
+  const target = Number(idx);
+  if (!Number.isInteger(target) || target < 0 || target >= n) return;
+  caseIndex.value = target;
+  computeResult.value = null;
+  caseBrief.value = null;
+  computeError.value = "";
+}
 
 function onLabSpeak(lines) {
   const list = Array.isArray(lines) ? lines.filter(Boolean) : [];
@@ -1019,18 +1215,23 @@ function onLabSpeak(lines) {
 
 async function doAsk() {
   const q = question.value.trim();
-  if (!q || askLoading.value) return;
+  if (!q || askLoading.value || !backendOk.value) return;
+  const topicAtAsk = activeTopicId.value;
+  const history = (chatsByTopic.value[topicAtAsk] || [])
+    .slice(-6)
+    .map((m) => ({ role: m.role, text: m.text }));
   askLoading.value = true;
   askError.value = "";
+  pushTopicChat(topicAtAsk, { role: "user", text: q });
+  question.value = "";
   try {
-    chat.value.push({ role: "user", text: q });
-    question.value = "";
     const res = await api.ask(q, methodId.value, {
       section: section.value,
       sectionLabel: lessonParts.value[section.value],
+      history,
     });
     askResult.value = res;
-    chat.value.push({
+    pushTopicChat(topicAtAsk, {
       role: "assistant",
       text: res.answer,
       sources: res.sources,
@@ -1038,6 +1239,7 @@ async function doAsk() {
     });
     askOpen.value = true;
   } catch (e) {
+    popLastUserChat(topicAtAsk, q);
     askError.value = e.message || String(e);
     if (!question.value.trim()) question.value = q;
   } finally {
@@ -1063,31 +1265,39 @@ async function submitQuiz() {
     quizHint.value = "请先选择一个选项";
     return;
   }
-  // P1：防双击 —— 已有请求在飞或已判过，直接返回
   if (quizSubmitting.value || quizChecked.value) return;
   quizSubmitting.value = true;
   quizHint.value = "";
   let fb;
   try {
-    fb = await api.grade({ question_id: item.id, choice: quizChoice.value });
+    fb = await api.grade({
+      question_id: item.id,
+      method_id: bankId.value,
+      choice: quizChoice.value,
+    });
+  } catch (e) {
+    quizHint.value = e?.message || "判分失败，请稍后重试";
+    return;
   } finally {
     quizSubmitting.value = false;
   }
   quizFeedback.value = fb;
   quizChecked.value = true;
-  // 记录本讲已答题数，供目录进度条使用
-  const prev = store.progress[activeTopicId.value] || {};
-  persistLesson(activeTopicId.value, section.value, {
-    answered: (Number(prev.answered) || 0) + 1,
-    quizTotal: choiceQuizzes.value.length || Number(prev.quizTotal) || 8,
+  // 按唯一题目 ID 统计本讲已答题数，防止「重做本题」刷爆进度条
+  recordQuizAnswer(activeTopicId.value, item.id, choiceQuizzes.value.length, {
+    section: clampSection(section.value),
+    lessonMode: "practice",
+    caseIndex: caseIndex.value,
   });
   if (!fb.correct) {
+    const rightKey = fb.answer ?? item.answer;
     addWrong({
       topic: activeTopicId.value,
+      questionId: item.id,
       question: item.question,
-      chosen: `${quizChoice.value}. ${item.options[quizChoice.value]}`,
-      correct: `${item.answer}. ${item.options[item.answer]}`,
-      reason: fb.reason || item.reason,
+      chosen: `${quizChoice.value}. ${item.options?.[quizChoice.value] ?? ""}`,
+      correct: rightKey ? `${rightKey}. ${item.options?.[rightKey] ?? ""}` : "",
+      reason: fb.reason || item.reason || "",
     });
   }
   if (fb.correct) {
@@ -1244,7 +1454,7 @@ function runCoach(run) {
       </button>
       <button
         class="nav-item"
-        :class="{ active: view === 'catalog' || (view === 'lesson' && !askOpen) }"
+        :class="{ active: view === 'catalog' || view === 'lesson' }"
         type="button"
         title="课程学习"
         aria-label="课程学习"
@@ -1267,7 +1477,6 @@ function runCoach(run) {
       <button
         v-if="view === 'lesson'"
         class="nav-item"
-        :class="{ active: askOpen }"
         type="button"
         title="课中追问"
         aria-label="课中追问"
@@ -1298,6 +1507,16 @@ function runCoach(run) {
             <small>@{{ user?.username }} · <button type="button" class="logout-link" @click="handleLogout">退出</button></small>
           </div>
         </div>
+        <button
+          v-if="sidebarCollapsed"
+          type="button"
+          class="collapsed-logout"
+          title="退出登录"
+          aria-label="退出登录"
+          @click="handleLogout"
+        >
+          退出
+        </button>
       </div>
     </aside>
 
@@ -1323,18 +1542,21 @@ function runCoach(run) {
       </div>
 
       <div class="content" :class="{ 'home-mode': view === 'home', 'qa-mode': view === 'qa' }">
-        <!-- QA -->
-        <AskSpace
-          v-if="view === 'qa'"
-          :backend-ok="backendOk"
-          :seed-question="qaSeed"
-          @back="go('home')"
-          @open-topic="(id) => openTopic(id)"
-          @seed-consumed="qaSeed = ''"
-        />
+        <!-- QA（KeepAlive 保持会话，切页不丢对话） -->
+        <KeepAlive>
+          <AskSpace
+            v-if="view === 'qa'"
+            ref="askSpaceRef"
+            :backend-ok="backendOk"
+            :seed-question="qaSeed"
+            @back="go('home')"
+            @open-topic="(id) => openTopic(id)"
+            @seed-consumed="qaSeed = ''"
+          />
+        </KeepAlive>
 
         <!-- HOME -->
-        <template v-else-if="view === 'home'">
+        <template v-if="view === 'home'">
           <div class="home-screen">
             <section class="hero hero-compact">
               <div class="hero-glow" aria-hidden="true" />
@@ -1547,6 +1769,8 @@ function runCoach(run) {
                   :notes="topicNotes"
                   :source="lessonReadingSource"
                   :create-note="createLessonNote"
+                  :update-note="updateLessonNote"
+                  :delete-note="removeNote"
                   empty-hint="讲义暂未加载"
                   @reload="loadTopicAssets"
                 />
@@ -1567,21 +1791,28 @@ function runCoach(run) {
                 </div>
               </div>
 
-              <!-- 第 2 段：有 Solver 为实验台，否则为案例对照 -->
-              <div class="lesson-body" v-else-if="section === LAB_SECTION">
-                <CaseLab
-                  :case-item="activeCase"
-                  :cases-count="topicCases.length"
-                  :method-id="methodId"
-                  :backend-ok="backendOk"
-                  :part-name="labPartName"
-                  @change-case="changeCase"
-                  @speak="onLabSpeak"
-                />
+              <!-- 第 2 段：有 Solver 为实验台，否则为案例对照（KeepAlive 保留同讲切 Tab 参数，按讲次与登录态隔离） -->
+              <div class="lesson-body" v-show="section === LAB_SECTION">
+                <KeepAlive :max="1">
+                  <CaseLab
+                    v-if="section === LAB_SECTION"
+                    :key="`${labSessionNonce}-${activeTopicId}`"
+                    :case-item="activeCase"
+                    :cases="topicCases"
+                    :case-index="caseIndex"
+                    :cases-count="topicCases.length"
+                    :method-id="methodId"
+                    :backend-ok="backendOk"
+                    :part-name="labPartName"
+                    @change-case="changeCase"
+                    @select-case="selectCase"
+                    @speak="onLabSpeak"
+                  />
+                </KeepAlive>
               </div>
 
               <!-- 做题答疑：小测 + 追问 -->
-              <div class="lesson-body" v-else>
+              <div class="lesson-body" v-if="section !== 0 && section !== LAB_SECTION">
                 <h2>做题答疑</h2>
 
                 <h3 class="teach-h3">小测</h3>
@@ -1604,8 +1835,11 @@ function runCoach(run) {
                     class="option"
                     :class="{
                       selected: quizChoice === key,
-                      correct: quizChecked && key === currentQuiz.answer,
-                      incorrect: quizChecked && quizChoice === key && key !== currentQuiz.answer,
+                      correct: quizChecked && key === (quizFeedback?.answer ?? currentQuiz.answer),
+                      incorrect:
+                        quizChecked &&
+                        quizChoice === key &&
+                        key !== (quizFeedback?.answer ?? currentQuiz.answer),
                     }"
                   >
                     <input type="radio" :value="key" v-model="quizChoice" :disabled="quizChecked" />
@@ -1666,7 +1900,11 @@ function runCoach(run) {
                         <div class="msg-meta">{{ m.role === "user" ? "学生" : m.topic || "课程回答" }}</div>
                         <div v-if="m.sources?.length" class="msg-sources">
                           教材来源：
-                          <span v-for="(s, si) in m.sources" :key="si">{{ s.source }}{{ s.title ? " · " + s.title : "" }}</span>
+                          <span>
+                            <template v-for="(s, si) in m.sources" :key="si">
+                              {{ formatSourceItem(s) }}{{ si < m.sources.length - 1 ? "；" : "" }}
+                            </template>
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1677,7 +1915,7 @@ function runCoach(run) {
                       v-model="question"
                       rows="2"
                       :placeholder="'点上方预设，或针对「' + current.topic.title + '」直接输入…'"
-                      @keydown.enter.exact.prevent="doAsk"
+                      @keydown="onLessonAskKeydown"
                     />
                     <div class="composer-footer">
                       <button
@@ -1760,7 +1998,7 @@ function runCoach(run) {
         </template>
 
         <!-- REVIEW -->
-        <template v-else>
+        <template v-else-if="view === 'review'">
           <h1 class="h1">复习与记录</h1>
           <div class="review-grid">
             <div class="card review-main">
@@ -1856,7 +2094,7 @@ function runCoach(run) {
       <button
         type="button"
         class="m-bottom-item"
-        :class="{ active: view === 'catalog' || (view === 'lesson' && !askOpen) }"
+        :class="{ active: view === 'catalog' || view === 'lesson' }"
         @click="go('catalog')"
       >
         <span class="m-ico">书</span>
@@ -1883,7 +2121,7 @@ function runCoach(run) {
     :context-id="view === 'classroom' && activeDeck ? activeDeck.topicId : store.lastTopicId || activeTopicId || 'lecture_ch2'"
     :backend-ok="backendOk"
     :external-speaking="view === 'classroom' ? classroomSpeaking : speaking"
-    :external-paused="view === 'classroom' ? false : paused"
+    :external-paused="view === 'classroom' ? classroomPaused : paused"
     :external-line="view === 'classroom' ? classroomLine : currentLine"
     :default-expanded="view === 'classroom'"
     :bottom-pad="72"
@@ -2049,6 +2287,24 @@ function runCoach(run) {
 }
 .sidebar.collapsed .user-mini {
   justify-content: center;
+  padding-top: 8px;
+}
+.collapsed-logout {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 5px 0;
+  border: 1px solid #354762;
+  border-radius: 8px;
+  background: rgba(36, 54, 79, 0.7);
+  color: #b6c8d0;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.collapsed-logout:hover {
+  background: #304560;
+  color: #fff;
 }
 
 /* 做题选项补 hover（原先 cursor:pointer 但零反馈） */
@@ -2976,8 +3232,13 @@ function runCoach(run) {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 16px 20px;
   margin-bottom: 21px;
+}
+.workspace-header > div:first-child {
+  flex: 1 1 280px;
+  min-width: 0;
 }
 .workspace-actions {
   display: flex;

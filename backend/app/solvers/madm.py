@@ -48,6 +48,7 @@ class MadmResult(BaseModel):
     ranking: list[str]
     best: str
     best_value: float
+    all_equal: bool = False
     steps: list[dict[str, Any]]
     panel_markdown: str
     speak_lines: list[str]
@@ -66,6 +67,10 @@ def _validate(data: MadmInput) -> None:
     for i, row in enumerate(data.matrix):
         if len(row) != n_c:
             raise ValueError(f"方案 {data.alternatives[i]} 的属性列数应为 {n_c}")
+    if not np.all(np.isfinite(np.asarray(data.weights, dtype=float))):
+        raise ValueError("权重包含非法数值")
+    if not np.all(np.isfinite(np.asarray(data.matrix, dtype=float))):
+        raise ValueError("决策矩阵包含非法数值")
     for j, t in enumerate(data.types):
         if t == "interval":
             name = data.attributes[j]
@@ -103,12 +108,24 @@ def _apply_interval(Y: np.ndarray, data: MadmInput) -> tuple[np.ndarray, list[st
 
 
 def _minmax(Y: np.ndarray, types: list[str]) -> np.ndarray:
-    """标准 0-1 变换。列内全相等时记为 1。"""
+    """标准 0-1 变换。列内全相等时记为 1；极端大数先缩放防差值溢出。"""
     z = np.zeros_like(Y, dtype=float)
     for j, t in enumerate(types):
         col = Y[:, j]
         lo, hi = float(col.min()), float(col.max())
         span = hi - lo
+        if not np.isfinite(span):
+            scale = max(abs(lo), abs(hi))
+            col_s = col / scale
+            lo_s, hi_s = lo / scale, hi / scale
+            span_s = hi_s - lo_s
+            if span_s <= 1e-15:
+                z[:, j] = 1.0
+            elif t == "cost":
+                z[:, j] = (hi_s - col_s) / span_s
+            else:
+                z[:, j] = (col_s - lo_s) / span_s
+            continue
         if span <= 1e-15:
             z[:, j] = 1.0
             continue
@@ -130,17 +147,28 @@ def _linear(Y: np.ndarray, types: list[str]) -> np.ndarray:
                 raise ValueError("加权积法的成本型属性须全为正，才能用 ymin/y")
             z[:, j] = lo / col
         else:
+            if np.any(col < 0):
+                raise ValueError("加权积法的效益型属性不能为负数")
             hi = float(col.max())
-            if hi == 0:
+            if hi <= 0:
                 raise ValueError("效益型属性列最大值为 0，无法做线性变换")
             z[:, j] = col / hi
     return z
 
 
 def _vector_norm(Y: np.ndarray) -> np.ndarray:
-    norms = np.linalg.norm(Y, axis=0)
-    norms = np.where(norms <= 1e-15, 1.0, norms)
-    return Y / norms
+    """向量规范化：逐列先按最大绝对值缩放再求 L2 范数，防止 1e200 等超大值平方溢出归零。"""
+    out = np.zeros_like(Y, dtype=float)
+    for j in range(Y.shape[1]):
+        col = Y[:, j]
+        scale = float(np.max(np.abs(col)))
+        if scale <= 1e-300:
+            continue
+        scaled = col / scale
+        norm = float(np.linalg.norm(scaled))
+        if norm > 0 and np.isfinite(norm):
+            out[:, j] = scaled / norm
+    return out
 
 
 def _rank(alts: list[str], scores: dict[str, float]) -> list[str]:
@@ -200,7 +228,7 @@ def solve(data: MadmInput) -> MadmResult:
             },
         ]
         detail = [
-            f"{alts[i]}：$d^*=${round(float(d_pos[i]), d)}，$d^0$={round(float(d_neg[i]), d)}，$c^*$={scores[alts[i]]}"
+            f"{alts[i]}：$d^*$={round(float(d_pos[i]), d)}，$d^0$={round(float(d_neg[i]), d)}，$c^*$={scores[alts[i]]}"
             for i in range(len(alts))
         ]
         formula_note = (
@@ -226,9 +254,14 @@ def solve(data: MadmInput) -> MadmResult:
 
     else:
         z = _linear(Y, types)
-        # z^w 逐列，再按行连乘
-        powered = np.power(np.clip(z, 1e-15, None), w)
-        u = powered.prod(axis=1)
+        # z^w 逐列连乘：当 w_j > 0 且 z_{ij} <= 0 时严格得 0（体现不可代偿性）；w_j == 0 时该属性因子为 1
+        u = np.ones(len(alts), dtype=float)
+        for j in range(len(attrs)):
+            wj = float(w[j])
+            if wj <= 0:
+                continue
+            col_z = z[:, j]
+            u *= np.where(col_z <= 0, 0.0, np.power(np.maximum(col_z, 1e-300), wj))
         raw_scores = {alts[i]: float(u[i]) for i in range(len(alts))}
         scores = {k: round(v, d) for k, v in raw_scores.items()}
         steps = [
@@ -242,14 +275,16 @@ def solve(data: MadmInput) -> MadmResult:
         )
 
     ranking = _rank(alts, raw_scores)
-    best = ranking[0]
-    best_value = scores[best]
+    raw_vals = list(raw_scores.values())
+    all_equal = len(alts) > 1 and (max(raw_vals) - min(raw_vals) <= 1e-12)
+    best = "" if all_equal else ranking[0]
+    best_value = scores[ranking[0]]
     type_labels = {"benefit": "效益", "cost": "成本", "interval": "区间"}
     type_line = "；".join(
         f"{attrs[j]}（{type_labels.get(data.types[j], data.types[j])}，w={data.weights[j]}）"
         for j in range(len(attrs))
     )
-    rank_text = " ≻ ".join(ranking)
+    rank_text = " = ".join(ranking) if all_equal else " ≻ ".join(ranking)
 
     panel = [
         f"## {method_name} · 求解过程",
@@ -263,8 +298,17 @@ def solve(data: MadmInput) -> MadmResult:
         *[f"- {line}" for line in detail],
         "",
         "### 排序",
-        f"- **{rank_text}**",
-        f"- **最优方案：{best}（{best_value}）**",
+        *(
+            [
+                f"- **{rank_text}**",
+                f"- **各方案无差异（得分均为 {best_value}），无法排定唯一最优方案。**",
+            ]
+            if all_equal
+            else [
+                f"- **{rank_text}**",
+                f"- **最优方案：{best}（{best_value}）**",
+            ]
+        ),
         "",
         "> 数值由程序计算，不依赖大模型。",
     ]
@@ -273,7 +317,11 @@ def solve(data: MadmInput) -> MadmResult:
         f"下面用{method_name}排序。",
         f"属性与权重：{type_line}。",
         "各方案得分：" + "；".join(f"{k}为{v}" for k, v in scores.items()) + "。",
-        f"由大到小为{rank_text}，最优方案是{best}。",
+        (
+            f"各方案得分完全相同，均为{best_value}，无差异，无法确定唯一最优方案。"
+            if all_equal
+            else f"由大到小为{rank_text}，最优方案是{best}。"
+        ),
     ]
 
     return MadmResult(
@@ -283,6 +331,7 @@ def solve(data: MadmInput) -> MadmResult:
         ranking=ranking,
         best=best,
         best_value=best_value,
+        all_equal=all_equal,
         steps=steps,
         panel_markdown="\n".join(panel),
         speak_lines=speak,

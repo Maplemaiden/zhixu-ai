@@ -74,7 +74,13 @@ export function useSpeech() {
       return;
     }
 
-    const u = new SpeechSynthesisUtterance(currentLine.value);
+    const plainForTts = currentLine.value
+      .replace(/\$\$[\s\S]+?\$\$/g, " ")
+      .replace(/\$[^$\n]+?\$/g, (m) => m.replace(/[$\\{}^_]/g, " "))
+      .replace(/[#*`>~]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    const u = new SpeechSynthesisUtterance(plainForTts || currentLine.value);
     u.lang = "zh-CN";
     u.rate = 1;
     const voice = window.speechSynthesis
